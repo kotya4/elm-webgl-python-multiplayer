@@ -784,11 +784,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.O.B === region.V.B)
+	if (region.O.B === region.W.B)
 	{
 		return 'on line ' + region.O.B;
 	}
-	return 'on lines ' + region.O.B + ' through ' + region.V.B;
+	return 'on lines ' + region.O.B + ' through ' + region.W.B;
 }
 
 
@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aB,
+		impl.aD,
+		impl.aL,
 		impl.aJ,
-		impl.aH,
 		function() { return function() {} }
 	);
 });
@@ -2704,7 +2704,7 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		p: func(record.p),
+		o: func(record.o),
 		P: record.P,
 		M: record.M
 	}
@@ -2974,7 +2974,7 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.p;
+		var message = !tag ? value : tag < 3 ? value.a : value.o;
 		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.P;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
@@ -3928,11 +3928,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aB,
+		impl.aD,
+		impl.aL,
 		impl.aJ,
-		impl.aH,
 		function(sendToApp, initialModel) {
-			var view = impl.aK;
+			var view = impl.aM;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3964,12 +3964,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aB,
+		impl.aD,
+		impl.aL,
 		impl.aJ,
-		impl.aH,
 		function(sendToApp, initialModel) {
 			var divertHrefToApp = impl.N && impl.N(sendToApp)
-			var view = impl.aK;
+			var view = impl.aM;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3977,12 +3977,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.au);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.aw);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.aI) && (_VirtualDom_doc.title = title = doc.aI);
+				(title !== doc.aK) && (_VirtualDom_doc.title = title = doc.aK);
 			});
 		}
 	);
@@ -4038,8 +4038,8 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.aD;
-	var onUrlRequest = impl.aE;
+	var onUrlChange = impl.aF;
+	var onUrlRequest = impl.aG;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
@@ -4059,9 +4059,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.ah === next.ah
-							&& curr.Z === next.Z
-							&& curr.ae.a === next.ae.a
+							&& curr.aj === next.aj
+							&& curr._ === next._
+							&& curr.ag.a === next.ag.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4069,13 +4069,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		aB: function(flags)
+		aD: function(flags)
 		{
-			return A3(impl.aB, flags, _Browser_getUrl(), key);
+			return A3(impl.aD, flags, _Browser_getUrl(), key);
 		},
-		aK: impl.aK,
-		aJ: impl.aJ,
-		aH: impl.aH
+		aM: impl.aM,
+		aL: impl.aL,
+		aJ: impl.aJ
 	});
 }
 
@@ -4141,17 +4141,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { az: 'hidden', av: 'visibilitychange' }
+		? { aB: 'hidden', ax: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { az: 'mozHidden', av: 'mozvisibilitychange' }
+		? { aB: 'mozHidden', ax: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { az: 'msHidden', av: 'msvisibilitychange' }
+		? { aB: 'msHidden', ax: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { az: 'webkitHidden', av: 'webkitvisibilitychange' }
-		: { az: 'hidden', av: 'visibilitychange' };
+		? { aB: 'webkitHidden', ax: 'webkitvisibilitychange' }
+		: { aB: 'hidden', ax: 'visibilitychange' };
 }
 
 
@@ -4232,12 +4232,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		al: _Browser_getScene(),
-		ao: {
-			aq: _Browser_window.pageXOffset,
-			ar: _Browser_window.pageYOffset,
-			ap: _Browser_doc.documentElement.clientWidth,
-			Y: _Browser_doc.documentElement.clientHeight
+		an: _Browser_getScene(),
+		aq: {
+			as: _Browser_window.pageXOffset,
+			at: _Browser_window.pageYOffset,
+			ar: _Browser_doc.documentElement.clientWidth,
+			Z: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4247,8 +4247,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		ap: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		Y: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		ar: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		Z: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4271,15 +4271,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			al: {
-				ap: node.scrollWidth,
-				Y: node.scrollHeight
+			an: {
+				ar: node.scrollWidth,
+				Z: node.scrollHeight
 			},
-			ao: {
-				aq: node.scrollLeft,
-				ar: node.scrollTop,
-				ap: node.clientWidth,
-				Y: node.clientHeight
+			aq: {
+				as: node.scrollLeft,
+				at: node.scrollTop,
+				ar: node.clientWidth,
+				Z: node.clientHeight
 			}
 		};
 	});
@@ -4309,18 +4309,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			al: _Browser_getScene(),
-			ao: {
-				aq: x,
-				ar: y,
-				ap: _Browser_doc.documentElement.clientWidth,
-				Y: _Browser_doc.documentElement.clientHeight
+			an: _Browser_getScene(),
+			aq: {
+				as: x,
+				at: y,
+				ar: _Browser_doc.documentElement.clientWidth,
+				Z: _Browser_doc.documentElement.clientHeight
 			},
-			ax: {
-				aq: x + rect.left,
-				ar: y + rect.top,
-				ap: rect.width,
-				Y: rect.height
+			az: {
+				as: x + rect.left,
+				at: y + rect.top,
+				ar: rect.width,
+				Z: rect.height
 			}
 		};
 	});
@@ -4392,52 +4392,6 @@ var _Bitwise_shiftRightZfBy = F2(function(offset, a)
 {
 	return a >>> offset;
 });
-
-
-
-function _Time_now(millisToPosix)
-{
-	return _Scheduler_binding(function(callback)
-	{
-		callback(_Scheduler_succeed(millisToPosix(Date.now())));
-	});
-}
-
-var _Time_setInterval = F2(function(interval, task)
-{
-	return _Scheduler_binding(function(callback)
-	{
-		var id = setInterval(function() { _Scheduler_rawSpawn(task); }, interval);
-		return function() { clearInterval(id); };
-	});
-});
-
-function _Time_here()
-{
-	return _Scheduler_binding(function(callback)
-	{
-		callback(_Scheduler_succeed(
-			A2($elm$time$Time$customZone, -(new Date().getTimezoneOffset()), _List_Nil)
-		));
-	});
-}
-
-
-function _Time_getZoneName()
-{
-	return _Scheduler_binding(function(callback)
-	{
-		try
-		{
-			var name = $elm$time$Time$Name(Intl.DateTimeFormat().resolvedOptions().timeZone);
-		}
-		catch (e)
-		{
-			var name = $elm$time$Time$Offset(new Date().getTimezoneOffset());
-		}
-		callback(_Scheduler_succeed(name));
-	});
-}
 var $elm$core$Basics$EQ = 1;
 var $elm$core$Basics$GT = 2;
 var $elm$core$Basics$LT = 0;
@@ -4942,7 +4896,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {X: fragment, Z: host, ac: path, ae: port_, ah: protocol, ai: query};
+		return {Y: fragment, _: host, ae: path, ag: port_, aj: protocol, ak: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5221,273 +5175,178 @@ var $elm$core$Task$perform = F2(
 			A2($elm$core$Task$map, toMessage, task));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Main$Model = F2(
-	function (msgWas, redcube) {
-		return {H: msgWas, j: redcube};
+var $author$project$Main$Model = F3(
+	function (msgWas, redcube, clientId) {
+		return {S: clientId, C: msgWas, x: redcube};
 	});
-var $author$project$Main$Redcube = F4(
-	function (position, origin, dragged, text) {
-		return {w: dragged, L: origin, C: position, I: text};
-	});
-var $author$project$Main$RedcubePlace = function (a) {
-	return {$: 1, a: a};
-};
-var $elm$random$Random$Generate = $elm$core$Basics$identity;
-var $elm$random$Random$Seed = F2(
-	function (a, b) {
-		return {$: 0, a: a, b: b};
-	});
-var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
-var $elm$random$Random$next = function (_v0) {
-	var state0 = _v0.a;
-	var incr = _v0.b;
-	return A2($elm$random$Random$Seed, ((state0 * 1664525) + incr) >>> 0, incr);
-};
-var $elm$random$Random$initialSeed = function (x) {
-	var _v0 = $elm$random$Random$next(
-		A2($elm$random$Random$Seed, 0, 1013904223));
-	var state1 = _v0.a;
-	var incr = _v0.b;
-	var state2 = (state1 + x) >>> 0;
-	return $elm$random$Random$next(
-		A2($elm$random$Random$Seed, state2, incr));
-};
-var $elm$time$Time$Name = function (a) {
-	return {$: 0, a: a};
-};
-var $elm$time$Time$Offset = function (a) {
-	return {$: 1, a: a};
-};
-var $elm$time$Time$Zone = F2(
-	function (a, b) {
-		return {$: 0, a: a, b: b};
-	});
-var $elm$time$Time$customZone = $elm$time$Time$Zone;
-var $elm$time$Time$Posix = $elm$core$Basics$identity;
-var $elm$time$Time$millisToPosix = $elm$core$Basics$identity;
-var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
-var $elm$time$Time$posixToMillis = function (_v0) {
-	var millis = _v0;
-	return millis;
-};
-var $elm$random$Random$init = A2(
-	$elm$core$Task$andThen,
-	function (time) {
-		return $elm$core$Task$succeed(
-			$elm$random$Random$initialSeed(
-				$elm$time$Time$posixToMillis(time)));
-	},
-	$elm$time$Time$now);
-var $elm$random$Random$step = F2(
-	function (_v0, seed) {
-		var generator = _v0;
-		return generator(seed);
-	});
-var $elm$random$Random$onEffects = F3(
-	function (router, commands, seed) {
-		if (!commands.b) {
-			return $elm$core$Task$succeed(seed);
-		} else {
-			var generator = commands.a;
-			var rest = commands.b;
-			var _v1 = A2($elm$random$Random$step, generator, seed);
-			var value = _v1.a;
-			var newSeed = _v1.b;
-			return A2(
-				$elm$core$Task$andThen,
-				function (_v2) {
-					return A3($elm$random$Random$onEffects, router, rest, newSeed);
-				},
-				A2($elm$core$Platform$sendToApp, router, value));
-		}
-	});
-var $elm$random$Random$onSelfMsg = F3(
-	function (_v0, _v1, seed) {
-		return $elm$core$Task$succeed(seed);
-	});
-var $elm$random$Random$Generator = $elm$core$Basics$identity;
-var $elm$random$Random$map = F2(
-	function (func, _v0) {
-		var genA = _v0;
-		return function (seed0) {
-			var _v1 = genA(seed0);
-			var a = _v1.a;
-			var seed1 = _v1.b;
-			return _Utils_Tuple2(
-				func(a),
-				seed1);
-		};
-	});
-var $elm$random$Random$cmdMap = F2(
-	function (func, _v0) {
-		var generator = _v0;
-		return A2($elm$random$Random$map, func, generator);
-	});
-_Platform_effectManagers['Random'] = _Platform_createManager($elm$random$Random$init, $elm$random$Random$onEffects, $elm$random$Random$onSelfMsg, $elm$random$Random$cmdMap);
-var $elm$random$Random$command = _Platform_leaf('Random');
-var $elm$random$Random$generate = F2(
-	function (tagger, generator) {
-		return $elm$random$Random$command(
-			A2($elm$random$Random$map, tagger, generator));
-	});
-var $elm$core$Bitwise$and = _Bitwise_and;
-var $elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var $elm$core$Bitwise$xor = _Bitwise_xor;
-var $elm$random$Random$peel = function (_v0) {
-	var state = _v0.a;
-	var word = (state ^ (state >>> ((state >>> 28) + 4))) * 277803737;
-	return ((word >>> 22) ^ word) >>> 0;
-};
-var $elm$random$Random$int = F2(
-	function (a, b) {
-		return function (seed0) {
-			var _v0 = (_Utils_cmp(a, b) < 0) ? _Utils_Tuple2(a, b) : _Utils_Tuple2(b, a);
-			var lo = _v0.a;
-			var hi = _v0.b;
-			var range = (hi - lo) + 1;
-			if (!((range - 1) & range)) {
-				return _Utils_Tuple2(
-					(((range - 1) & $elm$random$Random$peel(seed0)) >>> 0) + lo,
-					$elm$random$Random$next(seed0));
-			} else {
-				var threshhold = (((-range) >>> 0) % range) >>> 0;
-				var accountForBias = function (seed) {
-					accountForBias:
-					while (true) {
-						var x = $elm$random$Random$peel(seed);
-						var seedN = $elm$random$Random$next(seed);
-						if (_Utils_cmp(x, threshhold) < 0) {
-							var $temp$seed = seedN;
-							seed = $temp$seed;
-							continue accountForBias;
-						} else {
-							return _Utils_Tuple2((x % range) + lo, seedN);
-						}
-					}
-				};
-				return accountForBias(seed0);
-			}
-		};
-	});
-var $elm$random$Random$map2 = F3(
-	function (func, _v0, _v1) {
-		var genA = _v0;
-		var genB = _v1;
-		return function (seed0) {
-			var _v2 = genA(seed0);
-			var a = _v2.a;
-			var seed1 = _v2.b;
-			var _v3 = genB(seed1);
-			var b = _v3.a;
-			var seed2 = _v3.b;
-			return _Utils_Tuple2(
-				A2(func, a, b),
-				seed2);
-		};
-	});
-var $elm$random$Random$pair = F2(
-	function (genA, genB) {
-		return A3(
-			$elm$random$Random$map2,
-			F2(
-				function (a, b) {
-					return _Utils_Tuple2(a, b);
-				}),
-			genA,
-			genB);
-	});
-var $author$project$Main$randomPointOnScreen = A2(
-	$elm$random$Random$pair,
-	A2($elm$random$Random$int, 0, 500),
-	A2($elm$random$Random$int, 0, 500));
-var $author$project$Main$init = function (_v0) {
-	return _Utils_Tuple2(
-		A2(
-			$author$project$Main$Model,
-			'no messages yet',
-			A4(
-				$author$project$Main$Redcube,
-				_Utils_Tuple2(100, 100),
-				_Utils_Tuple2(0, 0),
-				false,
-				'Grab me')),
-		A2($elm$random$Random$generate, $author$project$Main$RedcubePlace, $author$project$Main$randomPointOnScreen));
-};
-var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
-var $author$project$Main$subscriptions = function (model) {
-	return $elm$core$Platform$Sub$none;
-};
-var $author$project$Main$drag = F2(
-	function (redcube, origin) {
-		return _Utils_update(
-			redcube,
-			{w: true, L: origin, I: 'Put me'});
-	});
-var $author$project$Main$subTuples = F2(
-	function (_v0, _v1) {
-		var x1 = _v0.a;
-		var y1 = _v0.b;
-		var x2 = _v1.a;
-		var y2 = _v1.b;
-		return _Utils_Tuple2(x1 - x2, y1 - y2);
-	});
-var $author$project$Main$move = F2(
-	function (redcube, position) {
-		return _Utils_update(
-			redcube,
-			{
-				C: A2($author$project$Main$subTuples, position, redcube.L)
-			});
+var $author$project$Main$Redcube = F5(
+	function (position, origin, dragged, text, ownerId) {
+		return {v: dragged, L: origin, ad: ownerId, D: position, I: text};
 	});
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Main$place = function (redcube) {
-	return _Utils_update(
-		redcube,
-		{w: false, I: 'Grab me'});
+var $author$project$Main$init = function (flags) {
+	return _Utils_Tuple2(
+		A3(
+			$author$project$Main$Model,
+			'no messages yet',
+			A5(
+				$author$project$Main$Redcube,
+				_Utils_Tuple2(0, 0),
+				_Utils_Tuple2(0, 0),
+				false,
+				'Text',
+				0),
+			0),
+		$elm$core$Platform$Cmd$none);
 };
-var $author$project$Main$stringifyTuple = function (_v0) {
-	var a = _v0.a;
-	var b = _v0.b;
-	return $elm$core$String$fromInt(a) + (' ' + $elm$core$String$fromInt(b));
+var $author$project$Main$ReceivePortMessage = function (a) {
+	return {$: 7, a: a};
 };
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $elm$json$Json$Decode$list = _Json_decodeList;
+var $author$project$Main$receiveMessage = _Platform_incomingPort(
+	'receiveMessage',
+	$elm$json$Json$Decode$list($elm$json$Json$Decode$int));
+var $author$project$Main$subscriptions = function (_v0) {
+	return $author$project$Main$receiveMessage($author$project$Main$ReceivePortMessage);
+};
+var $author$project$Main$RedcubeMove = function (a) {
+	return {$: 2, a: a};
+};
+var $author$project$Main$RedcubePlace = function (a) {
+	return {$: 1, a: a};
+};
+var $author$project$Main$encodePortMessage = function (msg) {
+	return _List_fromArray(
+		[1, 0, 0, 0]);
+};
+var $author$project$Main$WaitForInitialization = 0;
+var $author$project$Main$Initialize = F3(
+	function (a, b, c) {
+		return {$: 1, a: a, b: b, c: c};
+	});
+var $author$project$Main$RecievedIncorrectCommand = {$: 3};
+var $author$project$Main$RecievedIncorrectList = {$: 2};
+var $author$project$Main$SocketIsOpen = {$: 0};
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$core$Bitwise$shiftRightBy = _Bitwise_shiftRightBy;
+var $author$project$Main$decodePortMessage = function (message) {
+	if ((((message.b && message.b.b) && message.b.b.b) && message.b.b.b.b) && (!message.b.b.b.b.b)) {
+		var command_ = message.a;
+		var _v1 = message.b;
+		var clientId = _v1.a;
+		var _v2 = _v1.b;
+		var y = _v2.a;
+		var _v3 = _v2.b;
+		var x = _v3.a;
+		var extra = command_ >> 8;
+		var command = 255 & command_;
+		switch (command) {
+			case 0:
+				return $author$project$Main$SocketIsOpen;
+			case 1:
+				return A3(
+					$author$project$Main$Initialize,
+					clientId,
+					_Utils_Tuple2(x, y),
+					extra);
+			default:
+				return $author$project$Main$RecievedIncorrectCommand;
+		}
+	} else {
+		return $author$project$Main$RecievedIncorrectList;
+	}
+};
+var $author$project$Main$listIntToString = function (ints) {
+	if (ints.b) {
+		var x = ints.a;
+		var xs = ints.b;
+		return $elm$core$String$fromInt(x) + (', ' + $author$project$Main$listIntToString(xs));
+	} else {
+		return '';
+	}
+};
+var $elm$json$Json$Encode$int = _Json_wrap;
+var $elm$json$Json$Encode$list = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$List$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(0),
+				entries));
+	});
+var $author$project$Main$sendMessage = _Platform_outgoingPort(
+	'sendMessage',
+	$elm$json$Json$Encode$list($elm$json$Json$Encode$int));
+var $author$project$Main$parsePortMessage = F2(
+	function (message, model) {
+		var _v0 = $author$project$Main$decodePortMessage(message);
+		switch (_v0.$) {
+			case 0:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{C: 'Socket is open'}),
+					$author$project$Main$sendMessage(
+						$author$project$Main$encodePortMessage(0)));
+			case 1:
+				var clientId = _v0.a;
+				var position = _v0.b;
+				var ownerId = _v0.c;
+				var redcube_ = model.x;
+				var redcube = _Utils_update(
+					redcube_,
+					{ad: ownerId, D: position});
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							S: clientId,
+							C: 'ReceivePortMessage::Initialize ' + ($elm$core$String$fromInt(clientId) + (' ' + $elm$core$String$fromInt(ownerId))),
+							x: redcube
+						}),
+					$elm$core$Platform$Cmd$none);
+			default:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							C: 'Something bad happened, see the message list: ' + $author$project$Main$listIntToString(message)
+						}),
+					$elm$core$Platform$Cmd$none);
+		}
+	});
 var $author$project$Main$tuplefyMousePosition = function (p) {
-	return _Utils_Tuple2(p.S, p.T);
+	return _Utils_Tuple2(p.T, p.U);
 };
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		update:
 		while (true) {
 			switch (msg.$) {
+				case 6:
+					var message = msg.a;
+					return _Utils_Tuple2(
+						model,
+						$author$project$Main$sendMessage(
+							$author$project$Main$encodePortMessage(message)));
+				case 7:
+					var message = msg.a;
+					return A2($author$project$Main$parsePortMessage, message, model);
 				case 0:
 					var position = msg.a;
-					var pos = $author$project$Main$tuplefyMousePosition(position);
-					var orig = A2($author$project$Main$subTuples, pos, model.j.C);
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								H: 'RedcubeGrab ' + $author$project$Main$stringifyTuple(pos),
-								j: A2($author$project$Main$drag, model.j, orig)
-							}),
-						$elm$core$Platform$Cmd$none);
+					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				case 1:
 					var pos = msg.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								H: 'RedcubePlace',
-								j: $author$project$Main$place(
-									A2($author$project$Main$move, model.j, pos))
-							}),
-						$elm$core$Platform$Cmd$none);
+					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				case 2:
+					var pos = msg.a;
+					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				case 3:
 					var position = msg.a;
-					var _v1 = model.j.w;
+					var _v1 = model.x.v;
 					if (_v1) {
 						var pos = $author$project$Main$tuplefyMousePosition(position);
 						var $temp$msg = $author$project$Main$RedcubePlace(pos),
@@ -5498,19 +5357,16 @@ var $author$project$Main$update = F2(
 					} else {
 						return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 					}
-				case 3:
+				case 4:
 					var position = msg.a;
-					var _v2 = model.j.w;
+					var _v2 = model.x.v;
 					if (_v2) {
 						var pos = $author$project$Main$tuplefyMousePosition(position);
-						return _Utils_Tuple2(
-							_Utils_update(
-								model,
-								{
-									H: 'MouseMove ' + $author$project$Main$stringifyTuple(pos),
-									j: A2($author$project$Main$move, model.j, pos)
-								}),
-							$elm$core$Platform$Cmd$none);
+						var $temp$msg = $author$project$Main$RedcubeMove(pos),
+							$temp$model = model;
+						msg = $temp$msg;
+						model = $temp$model;
+						continue update;
 					} else {
 						return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 					}
@@ -5520,21 +5376,20 @@ var $author$project$Main$update = F2(
 		}
 	});
 var $author$project$Main$MouseMove = function (a) {
-	return {$: 3, a: a};
+	return {$: 4, a: a};
 };
 var $author$project$Main$MouseUp = function (a) {
-	return {$: 2, a: a};
+	return {$: 3, a: a};
 };
 var $author$project$Main$MousePosition = F2(
 	function (clientX, clientY) {
-		return {S: clientX, T: clientY};
+		return {T: clientX, U: clientY};
 	});
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
 		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
 	});
-var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $author$project$Main$decodeMousePosition = A3(
 	$elm$json$Json$Decode$map2,
 	$author$project$Main$MousePosition,
@@ -5562,28 +5417,8 @@ var $elm$html$Html$Events$on = F2(
 	});
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
-var $author$project$Main$viewMainContainer = function (contents) {
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				A2($elm$html$Html$Attributes$style, 'width', '100vw'),
-				A2($elm$html$Html$Attributes$style, 'height', '100vh'),
-				A2($elm$html$Html$Attributes$style, 'overflow', 'hidden'),
-				A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
-				A2($elm$html$Html$Attributes$style, 'left', '0'),
-				A2($elm$html$Html$Attributes$style, 'top', '0'),
-				A2(
-				$elm$html$Html$Events$on,
-				'mousemove',
-				A2($elm$json$Json$Decode$map, $author$project$Main$MouseMove, $author$project$Main$decodeMousePosition)),
-				A2(
-				$elm$html$Html$Events$on,
-				'mouseup',
-				A2($elm$json$Json$Decode$map, $author$project$Main$MouseUp, $author$project$Main$decodeMousePosition))
-			]),
-		contents);
-};
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$RedcubeGrab = function (a) {
 	return {$: 0, a: a};
 };
@@ -5591,11 +5426,11 @@ var $elm$core$Tuple$second = function (_v0) {
 	var y = _v0.b;
 	return y;
 };
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$Main$viewRedcube = function (redcube) {
+var $author$project$Main$viewRedcube = function (rc) {
+	var top = $elm$core$String$fromInt(rc.D.b) + 'px';
+	var left = $elm$core$String$fromInt(rc.D.a) + 'px';
 	var background = function () {
-		var _v0 = redcube.w;
+		var _v0 = rc.v;
 		if (_v0) {
 			return 'blue';
 		} else {
@@ -5616,14 +5451,8 @@ var $author$project$Main$viewRedcube = function (redcube) {
 				A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
 				A2($elm$html$Html$Attributes$style, 'user-select', 'none'),
 				A2($elm$html$Html$Attributes$style, 'background', background),
-				A2(
-				$elm$html$Html$Attributes$style,
-				'left',
-				$elm$core$String$fromInt(redcube.C.a) + 'px'),
-				A2(
-				$elm$html$Html$Attributes$style,
-				'top',
-				$elm$core$String$fromInt(redcube.C.b) + 'px'),
+				A2($elm$html$Html$Attributes$style, 'left', left),
+				A2($elm$html$Html$Attributes$style, 'top', top),
 				A2(
 				$elm$html$Html$Events$on,
 				'mousedown',
@@ -5631,17 +5460,47 @@ var $author$project$Main$viewRedcube = function (redcube) {
 			]),
 		_List_fromArray(
 			[
-				$elm$html$Html$text(redcube.I)
+				$elm$html$Html$text(rc.I)
 			]));
 };
 var $author$project$Main$view = function (model) {
-	return $author$project$Main$viewMainContainer(
+	return A2(
+		$elm$html$Html$div,
 		_List_fromArray(
 			[
-				$author$project$Main$viewRedcube(model.j)
+				A2($elm$html$Html$Attributes$style, 'width', '100vw'),
+				A2($elm$html$Html$Attributes$style, 'height', '100vh'),
+				A2($elm$html$Html$Attributes$style, 'overflow', 'hidden'),
+				A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
+				A2($elm$html$Html$Attributes$style, 'left', '0'),
+				A2($elm$html$Html$Attributes$style, 'top', '0'),
+				A2(
+				$elm$html$Html$Events$on,
+				'mousemove',
+				A2($elm$json$Json$Decode$map, $author$project$Main$MouseMove, $author$project$Main$decodeMousePosition)),
+				A2(
+				$elm$html$Html$Events$on,
+				'mouseup',
+				A2($elm$json$Json$Decode$map, $author$project$Main$MouseUp, $author$project$Main$decodeMousePosition))
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
+						A2($elm$html$Html$Attributes$style, 'bottom', '0'),
+						A2($elm$html$Html$Attributes$style, 'left', '0')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(model.C)
+					])),
+				$author$project$Main$viewRedcube(model.x)
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
-	{aB: $author$project$Main$init, aH: $author$project$Main$subscriptions, aJ: $author$project$Main$update, aK: $author$project$Main$view});
+	{aD: $author$project$Main$init, aJ: $author$project$Main$subscriptions, aL: $author$project$Main$update, aM: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
 	$elm$json$Json$Decode$succeed(0))(0)}});}(this));

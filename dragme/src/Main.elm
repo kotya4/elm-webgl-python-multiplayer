@@ -1,21 +1,15 @@
 module Main exposing (main)
 
-import Debug
 import Browser
-import Html exposing (Html, div, text)
+import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (style)
 import Html.Events
 import Json.Decode
-import Random
+import Debug
 
 
 main =
-  Browser.element
-    { init = init
-    , update = update
-    , subscriptions = subscriptions
-    , view = view
-    }
+  Browser.sandbox { init = init, update = update, view = view }
 
 
 -- MODEL
@@ -23,99 +17,51 @@ main =
 
 
 type alias Model =
-  { msgWas  :  String
+  { msgWas  : String
   , redcube : Redcube
   }
-
-
-init : () -> ( Model, Cmd Msg )
-init _ =
-  ( Model "no messages yet" ( Redcube (100, 100) (0, 0) False "Grab me" )
-  , Random.generate RedcubePlace randomPointOnScreen
-  )
-
-
-randomPointOnScreen : Random.Generator (Int, Int)
-randomPointOnScreen =
-  Random.pair ( Random.int 0 500 ) ( Random.int 0 500 )
+init : Model
+init =
+  Model "no messages yet" ( Redcube (100, 100) (0, 0) False )
 
 
 -- UPDATE
 
 
 type Msg
-  = RedcubeGrab        MousePosition
-  | RedcubePlace        ( Int, Int )
-  | MouseUp            MousePosition
-  | MouseMove          MousePosition
-  | MouseDown          MousePosition
+  = RedcubeDragged MousePosition
+  | RedcubePlaced
+  | MouseMoved MousePosition
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
   case msg of
-    RedcubeGrab position ->
+    RedcubeDragged origin ->
       let
-        pos  = tuplefyMousePosition position
-        orig = subTuples pos model.redcube.position
+        orig = subTuples ( tuplefy origin ) model.redcube.position
       in
-      ( { model
-            | redcube = drag model.redcube orig
-            , msgWas  = "RedcubeGrab " ++ stringifyTuple pos
+        { model
+        | redcube = drag model.redcube orig
+        , msgWas = "RedcubeDragged " ++ ( Tuple.first orig |> String.fromInt ) ++ " " ++ ( Tuple.second orig |> String.fromInt )
         }
-      , Cmd.none
-      )
 
-    RedcubePlace pos ->
-      ( { model
-            | redcube = place <| move model.redcube pos
-            , msgWas  = "RedcubePlace"
+    RedcubePlaced ->
+      { model
+      | redcube = place model.redcube
+      , msgWas = "RedcubePlaced"
+      }
+
+    MouseMoved position ->
+      let
+        pos = tuplefy position
+      in
+        { model
+        | redcube = move model.redcube pos
+        , msgWas = "MouseMoved " ++ ( Tuple.first pos |> String.fromInt ) ++ " " ++ ( Tuple.second pos |> String.fromInt )
         }
-      , Cmd.none
-      )
-
-    MouseUp position ->
-      case model.redcube.dragged of
-        True ->
-          let
-            pos = tuplefyMousePosition position
-          in
-          update ( RedcubePlace pos ) model
-        _    ->
-          ( model
-          , Cmd.none
-          )
-
-    MouseMove position ->
-      case model.redcube.dragged of
-        True ->
-          let
-            pos = tuplefyMousePosition position
-          in
-          ( { model
-                | redcube = move model.redcube pos
-                , msgWas = "MouseMove " ++ stringifyTuple pos
-            }
-          , Cmd.none
-          )
-        _    ->
-          ( model
-          , Cmd.none
-          )
-
-    MouseDown _ ->
-      ( model
-      , Cmd.none
-      )
 
 
-
--- SUBSCRIPTIONS
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-  Sub.none
 
 
 -- VIEW
@@ -124,32 +70,23 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
   viewMainContainer
-  --[ div [] [ text model.msgWas ]
-  [ viewRedcube model.redcube
+  [ div [] [ text model.msgWas ]
+  , viewRedcube model.redcube
   ]
-
-
-
--- VIEW STUFF
-
-
 
 viewMainContainer : List ( Html Msg ) -> Html Msg
 viewMainContainer contents =
   div
-    --[ style "margin"         "0"
-    --, style "padding"        "0"
-    --, style "background"  "#111"
-    --, style "color"       "#aaa"
-    --, style "user-select" "none"
-    [ style "width"       "100vw"
-    , style "height"      "100vh"
-    , style "overflow"   "hidden"
-    , style "position" "absolute"
-    , style "left"            "0"
-    , style "top"             "0"
-    , Html.Events.on "mousemove" <| Json.Decode.map MouseMove decodeMousePosition
-    , Html.Events.on "mouseup"   <| Json.Decode.map MouseUp   decodeMousePosition
+    [ style "margin"         "0"
+    , style "padding"        "0"
+    , style "background"  "#111"
+    , style "color"       "#aaa"
+    , style "width"      "100vw"
+    , style "height"     "100vh"
+    , style "overflow"  "hidden"
+    , style "user-select" "none"
+    , Html.Events.on "mousemove" <| Json.Decode.map MouseMoved decodeMousePosition
+    , Html.Events.on "mouseup"   <| Json.Decode.succeed RedcubePlaced
     ]
     contents
 
@@ -174,24 +111,17 @@ viewRedcube redcube =
       , style "align-items"     "center"
       , style "color"            "white"
       , style "border-radius"     "10px"
-      , style "user-select"       "none"
       , style "background" background
       , style "left" <| ( Tuple.first  redcube.position |> String.fromInt ) ++ "px"
       , style "top"  <| ( Tuple.second redcube.position |> String.fromInt ) ++ "px"
-      , Html.Events.on "mousedown" <| Json.Decode.map RedcubeGrab decodeMousePosition
+      , Html.Events.on "mousedown" <| Json.Decode.map RedcubeDragged decodeMousePosition
       ]
-      [ text redcube.text
+      [ text "Drag Me"
       ]
 
 
 
--- PLAYGROUND
-
-
-
-stringifyTuple : (Int, Int) -> String
-stringifyTuple (a, b) =
-  String.fromInt a ++ " " ++ String.fromInt b
+-- OTHER
 
 
 
@@ -199,20 +129,24 @@ type alias Redcube =
   { position : (Int, Int)
   , origin   : (Int, Int)
   , dragged  : Bool
-  , text     : String
   }
 
 move : Redcube -> (Int, Int) -> Redcube
 move redcube position =
-  { redcube | position = subTuples position redcube.origin }
+  if redcube.dragged == True then
+    { redcube
+    | position = subTuples position redcube.origin
+    }
+  else
+    redcube
 
 drag : Redcube -> (Int, Int) -> Redcube
 drag redcube origin =
-  { redcube | dragged = True, origin = origin, text = "Put me" }
+  { redcube | dragged = True, origin = origin }
 
 place : Redcube -> Redcube
 place redcube =
-  { redcube | dragged = False, text = "Grab me" }
+  { redcube | dragged = False }
 
 
 
@@ -229,8 +163,8 @@ decodeMousePosition =
     ( Json.Decode.at [ "clientY" ] Json.Decode.int )
 
 
-tuplefyMousePosition : MousePosition -> (Int, Int)
-tuplefyMousePosition p =
+tuplefy : MousePosition -> (Int, Int)
+tuplefy p =
   ( p.clientX, p.clientY )
 
 
