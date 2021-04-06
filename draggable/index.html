@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>draggable</title>
+  <meta charset="utf-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap');
+    a {
+      color: hotpink !important;
+      text-decoration:     none;
+    }
+    .draggable {
+      position:        absolute;
+      width:               64px;
+      height:              64px;
+      border-radius:       10px;
+      user-select:         none;
+      border:   1px solid black;
+      display:             flex;
+      justify-content:   center;
+      align-items:       center;
+    }
+  </style>
+  <script src="draggable.js"></script>
+</head>
+<body>
+
+  <!-- Elm -->
+  <div id="elm-draggable"></div>
+  <script>
+
+    // Run Elm app
+
+    const app = Elm.Draggable.init({
+      node: document.getElementById('elm-draggable')
+    });
+
+    // Create websocket
+
+    const host = `ws://${location.host}`;
+
+    const socket = new WebSocket(`${host}/draggablewebsocketserver`);
+
+    socket.binaryType = 'arraybuffer';
+
+    // Apply websocket to Elm ports
+
+    socket.addEventListener('open', (event) => {
+      // console.log('socket open');
+      // console.log(event);
+      // Custom initial values sent to Elm to message that websocket is ready.
+      app.ports.receivePortMessage.send([0, 0, 0, 0, 0]);
+    });
+
+    app.ports.sendPortMessage.subscribe((message) => {
+      socket.send(new Uint16Array(message).buffer);
+    });
+
+    socket.addEventListener('message', (event) => {
+      // console.log('socket message');
+      // console.log(event);
+      app.ports.receivePortMessage.send([...new Uint16Array(event.data)]);
+    });
+
+  </script>
+  <!-- /Elm -->
+
+</body>
+</html>
