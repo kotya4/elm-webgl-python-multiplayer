@@ -30,7 +30,7 @@ port receivePortMessage : ( RawIncomingPortMessage -> msg ) -> Sub msg
 type OutcomingPortMessage
   = LoadDraggable
   | GrabDraggable Int Int Int
-  | PutDraggable
+  | PutDraggable Int Int Int
   | MoveDraggable Int Int
 
 encodePortMessage : OutcomingPortMessage -> RawOutcomingPortMessage
@@ -38,7 +38,7 @@ encodePortMessage message =
   case message of
     LoadDraggable             -> [ 1,       0, 0, 0 ]
     GrabDraggable offsets y x -> [ 2, offsets, y, x ]
-    PutDraggable              -> [ 3,       0, 0, 0 ]
+    PutDraggable  offsets y x -> [ 3, offsets, y, x ]
     MoveDraggable         y x -> [ 4,       0, y, x ]
 
 encodeAndSendPortMessage : OutcomingPortMessage -> Cmd msg
@@ -46,6 +46,7 @@ encodeAndSendPortMessage message = encodePortMessage message |> sendPortMessage
 
 type IncomingPortMessage
   = WebSocketReady
+  | WebSocketClosed
   | DraggableLoaded            Int Int Int Int Int Int
   | DraggableGrabbed           Int Int Int Int Int
   | DraggablePutted            Int Int Int Int Int
@@ -65,6 +66,7 @@ decodePortMessage message =
       in
       case action of
         0 -> WebSocketReady
+        255 -> WebSocketClosed
         1 -> DraggableLoaded  extra owner offsetY offsetX y x
         2 -> DraggableGrabbed       owner offsetY offsetX y x
         3 -> DraggablePutted        owner offsetY offsetX y x
@@ -81,47 +83,79 @@ updateOnPortMessageReceived message model =
   in
   case decodedMessage of
     WebSocketReady ->
-      ( { model | text = text }, encodeAndSendPortMessage LoadDraggable )
+      ( { model | text = text }
+      , encodeAndSendPortMessage LoadDraggable
+      )
+
+    WebSocketClosed ->
+      ( { model | isWebSocketClosed = True }
+      , Cmd.none
+      )
 
     DraggableLoaded client owner offsetY offsetX y x ->
       let
         oldDraggable = model.draggable
         draggable    = { oldDraggable | owner = owner, offsetY = offsetY, offsetX = offsetX, y = y, x = x }
       in
-      ( { model | text = text, draggable = draggable, client = client }, Cmd.none )
+      ( { model | text = text, draggable = draggable, client = client }
+      , Cmd.none
+      )
 
     DraggableGrabbed owner offsetY offsetX y x ->
       let
         oldDraggable = model.draggable
         draggable    = { oldDraggable | owner = owner, offsetY = offsetY, offsetX = offsetX, y = y, x = x }
       in
-      ( { model | text = text, draggable = draggable }, Cmd.none )
+        -- Between real server and client can be delay.
+        -- If delay is bigger than clientside action, f.e. mouse click,
+        -- then client actions can be processed only partially.
+        -- To avoid that, there the mouse button status check is.
+        case model.isMouseUp of
+          False ->
+            ( { model | text = text, draggable = draggable }
+            , Cmd.none
+            )
+          True ->
+            let
+              offsets = Bitwise.or ( Bitwise.shiftLeftBy 8 offsetY ) offsetX
+            in
+            ( { model | text = text, draggable = draggable }
+            , encodeAndSendPortMessage ( PutDraggable offsets y x )
+            )
 
     DraggablePutted owner offsetY offsetX y x ->
       let
         oldDraggable = model.draggable
         draggable    = { oldDraggable | owner = owner, offsetY = offsetY, offsetX = offsetX, y = y, x = x }
-        -- TIP: Also can do as: draggable = { oldDraggable | owner = 0, offsetY = 0, offsetX = 0, y = y - offsetY, x = x - offsetX }
       in
-      ( { model | text = text, draggable = draggable }, Cmd.none )
+      ( { model | text = text, draggable = draggable }
+      , Cmd.none
+      )
 
     DraggableMoved owner offsetY offsetX y x ->
       let
         oldDraggable = model.draggable
         draggable    = { oldDraggable | owner = owner, offsetY = offsetY, offsetX = offsetX, y = y, x = x }
       in
-      ( { model | text = text, draggable = draggable }, Cmd.none )
+      ( { model | text = text, draggable = draggable }
+      , Cmd.none
+      )
 
     IncorrectPortMessageAction _ ->
-      ( { model | text = text }, Cmd.none )
+      ( { model | text = text }
+      , Cmd.none
+      )
 
     IncorrectPortMessageArray  _ ->
-      ( { model | text = text }, Cmd.none )
+      ( { model | text = text }
+      , Cmd.none
+      )
 
 stringifyIncomingPortMessage : IncomingPortMessage -> String
 stringifyIncomingPortMessage message =
   case message of
     WebSocketReady                         -> "WebSocketReady"
+    WebSocketClosed                        -> "WebSocketClosed"
     DraggableLoaded client owner oy ox y x -> "DraggableLoaded "  ++ stringifyListInt [ client, owner, oy, ox, y, x ]
     DraggableGrabbed       owner oy ox y x -> "DraggableGrabbed " ++ stringifyListInt [         owner, oy, ox, y, x ]
     DraggablePutted        owner oy ox y x -> "DraggablePutted "  ++ stringifyListInt [         owner, oy, ox, y, x ]
@@ -148,11 +182,13 @@ type alias Model =
   { text      : String
   , draggable : Draggable
   , client    : Int
+  , isMouseUp : Bool
+  , isWebSocketClosed : Bool
   }
 
 init : () -> ( Model, Cmd Msg )
 init flags =
-  ( Model "text" ( Draggable 0 0 0 0 0 ) 0
+  ( Model "text" ( Draggable 0 0 0 0 0 ) 0 True False
   , Cmd.none
   )
 
@@ -193,38 +229,45 @@ update msg model =
     -- Draggable events
 
     DraggableMouseDown mousePos ->
-      case isDraggableGrabbable model of
-        True ->
-          let
-            offsetY = Bitwise.and 0xff ( mousePos.clientY - model.draggable.y + model.draggable.offsetY )
-            offsetX = Bitwise.and 0xff ( mousePos.clientX - model.draggable.x + model.draggable.offsetX )
-            offsets = Bitwise.or ( Bitwise.shiftLeftBy 8 offsetY ) offsetX
-            y = mousePos.clientY
-            x = mousePos.clientX
-          in
-          ( model
-          , encodeAndSendPortMessage ( GrabDraggable offsets y x )
-          )
-        False ->
-          ( model, Cmd.none )
+      ( { model | isMouseUp = False }
+      , case isDraggableGrabbable model of
+          True ->
+            let
+              offsetY = Bitwise.and 0xff ( mousePos.clientY - model.draggable.y + model.draggable.offsetY )
+              offsetX = Bitwise.and 0xff ( mousePos.clientX - model.draggable.x + model.draggable.offsetX )
+              offsets = Bitwise.or ( Bitwise.shiftLeftBy 8 offsetY ) offsetX
+              y = max 0 mousePos.clientY
+              x = max 0 mousePos.clientX
+            in
+            encodeAndSendPortMessage ( GrabDraggable offsets y x )
+          False ->
+            Cmd.none
+      )
 
-    DraggableMouseUp _ ->
-      case isDraggableGrabbed model of
-        True ->
-          ( model
-          , encodeAndSendPortMessage ( PutDraggable )
-          )
-        False ->
-          ( model, Cmd.none )
+    DraggableMouseUp mousePos ->
+      ( { model | isMouseUp = True }
+      , case isDraggableGrabbed model of
+          True ->
+            let
+              offsetY = Bitwise.and 0xff ( mousePos.clientY - model.draggable.y + model.draggable.offsetY )
+              offsetX = Bitwise.and 0xff ( mousePos.clientX - model.draggable.x + model.draggable.offsetX )
+              offsets = Bitwise.or ( Bitwise.shiftLeftBy 8 offsetY ) offsetX
+              y = max 0 mousePos.clientY
+              x = max 0 mousePos.clientX
+            in
+            encodeAndSendPortMessage ( PutDraggable offsets y x )
+          False ->
+            Cmd.none
+      )
 
     DraggableMouseMove mousePos ->
-      case isDraggableGrabbed model of
+      case model.isMouseUp == False && isDraggableGrabbed model of
         True ->
           let
-            y = mousePos.clientY
-            x = mousePos.clientX
+            y = max 0 mousePos.clientY
+            x = max 0 mousePos.clientX
             oldDraggable = model.draggable
-            draggable    = { oldDraggable | y = y, x = x }
+            draggable = { oldDraggable | y = y, x = x }
           in
           ( { model | draggable = draggable }
           , encodeAndSendPortMessage ( MoveDraggable y x )
@@ -254,6 +297,7 @@ view model =
     , style "position" "absolute"
     , style "left"            "0"
     , style "top"             "0"
+    , Html.Events.on "mouseleave" ( Json.Decode.map MouseUp decodeMousePosition )
     , Html.Events.on "mousemove" ( Json.Decode.map MouseMove decodeMousePosition )
     , Html.Events.on "mouseup" ( Json.Decode.map MouseUp decodeMousePosition )
     ]
@@ -265,13 +309,14 @@ view model =
         ]
         [ text model.text
         ]
-        -- Source link
     , a
+        -- Source link
         [ href   "https://github.com/sluchaynayakotya/-elm/blob/master/draggable/src/Draggable.elm"
         , target "_blank"
         , style  "position" "absolute"
         , style  "top"             "0"
         , style  "right"         "5px"
+        , style  "z-index"      "1000"
         ]
         [ text "source"
         ]
@@ -285,9 +330,15 @@ view model =
         ]
         [ text draggableText
         ]
+    , div
+        -- WebSocket connection closed message
+        [ class "connection-lost"
+        , style "display" ( if model.isWebSocketClosed then "flex" else "none" )
+        ]
+        [ text "Connection lost. Reload the page"
+        ]
     ]
 
--- TODO: random color generator
 chooseDraggableColor : Model -> String
 chooseDraggableColor model =
   let
@@ -296,13 +347,13 @@ chooseDraggableColor model =
     isFree        = model.draggable.owner == 0
   in
   if ownedByClient then
-    "#FF5733"
+    stringifyRGB ( getHashedRGB model.client )
   else if unaccessable then
     "#C8C8C8"
   else if isFree then
     "white"
   else -- in use
-    "#749C82"
+    stringifyRGB ( getHashedRGB model.draggable.owner )
 
 -- EVENTS AND DECODERS
 
@@ -328,3 +379,20 @@ stringifyListInt list =
   case list of
     (x::xs) -> String.fromInt x ++ " " ++ stringifyListInt xs
     []      -> ""
+
+randomTuple3 : Random.Generator a -> Random.Generator ( a, a, a )
+randomTuple3 generator =
+  Random.map3 (\ a b c -> ( a, b, c )) generator generator generator
+
+getHashedRGB : Int -> ( Int, Int, Int )
+getHashedRGB seed =
+  let
+    seed0 = Random.initialSeed seed
+    generator = randomTuple3 ( Random.int 100 255 )
+    ( value, _ ) = Random.step generator seed0
+  in
+    value
+
+stringifyRGB : ( Int, Int, Int ) -> String
+stringifyRGB ( r, g, b ) =
+  "rgb(" ++ String.fromInt r ++ "," ++ String.fromInt g ++ "," ++ String.fromInt b ++ ")"

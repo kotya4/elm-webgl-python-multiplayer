@@ -784,11 +784,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.S.J === region.X.J)
+	if (region.U.K === region.Z.K)
 	{
-		return 'on line ' + region.S.J;
+		return 'on line ' + region.U.K;
 	}
-	return 'on lines ' + region.S.J + ' through ' + region.X.J;
+	return 'on lines ' + region.U.K + ' through ' + region.Z.K;
 }
 
 
@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aB,
+		impl.aD,
+		impl.aL,
 		impl.aJ,
-		impl.aH,
 		function() { return function() {} }
 	);
 });
@@ -2704,9 +2704,9 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		s: func(record.s),
-		T: record.T,
-		Q: record.Q
+		u: func(record.u),
+		V: record.V,
+		S: record.S
 	}
 });
 
@@ -2974,11 +2974,11 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.s;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.T;
+		var message = !tag ? value : tag < 3 ? value.a : value.u;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.V;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.Q) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.S) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3928,11 +3928,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aB,
+		impl.aD,
+		impl.aL,
 		impl.aJ,
-		impl.aH,
 		function(sendToApp, initialModel) {
-			var view = impl.aK;
+			var view = impl.aM;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3964,12 +3964,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aB,
+		impl.aD,
+		impl.aL,
 		impl.aJ,
-		impl.aH,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.R && impl.R(sendToApp)
-			var view = impl.aK;
+			var divertHrefToApp = impl.T && impl.T(sendToApp)
+			var view = impl.aM;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3977,12 +3977,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.au);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.aw);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.aI) && (_VirtualDom_doc.title = title = doc.aI);
+				(title !== doc.aK) && (_VirtualDom_doc.title = title = doc.aK);
 			});
 		}
 	);
@@ -4038,12 +4038,12 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.aD;
-	var onUrlRequest = impl.aE;
+	var onUrlChange = impl.aF;
+	var onUrlRequest = impl.aG;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		R: function(sendToApp)
+		T: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4059,9 +4059,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.aj === next.aj
-							&& curr.aa === next.aa
-							&& curr.ag.a === next.ag.a
+							&& curr.al === next.al
+							&& curr.ac === next.ac
+							&& curr.ai.a === next.ai.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4069,13 +4069,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		aB: function(flags)
+		aD: function(flags)
 		{
-			return A3(impl.aB, flags, _Browser_getUrl(), key);
+			return A3(impl.aD, flags, _Browser_getUrl(), key);
 		},
-		aK: impl.aK,
-		aJ: impl.aJ,
-		aH: impl.aH
+		aM: impl.aM,
+		aL: impl.aL,
+		aJ: impl.aJ
 	});
 }
 
@@ -4141,17 +4141,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { az: 'hidden', av: 'visibilitychange' }
+		? { aB: 'hidden', ax: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { az: 'mozHidden', av: 'mozvisibilitychange' }
+		? { aB: 'mozHidden', ax: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { az: 'msHidden', av: 'msvisibilitychange' }
+		? { aB: 'msHidden', ax: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { az: 'webkitHidden', av: 'webkitvisibilitychange' }
-		: { az: 'hidden', av: 'visibilitychange' };
+		? { aB: 'webkitHidden', ax: 'webkitvisibilitychange' }
+		: { aB: 'hidden', ax: 'visibilitychange' };
 }
 
 
@@ -4232,12 +4232,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		an: _Browser_getScene(),
-		aq: {
-			v: _Browser_window.pageXOffset,
-			w: _Browser_window.pageYOffset,
-			ar: _Browser_doc.documentElement.clientWidth,
-			_: _Browser_doc.documentElement.clientHeight
+		ap: _Browser_getScene(),
+		as: {
+			r: _Browser_window.pageXOffset,
+			s: _Browser_window.pageYOffset,
+			at: _Browser_doc.documentElement.clientWidth,
+			ab: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4247,8 +4247,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		ar: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		_: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		at: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		ab: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4271,15 +4271,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			an: {
-				ar: node.scrollWidth,
-				_: node.scrollHeight
+			ap: {
+				at: node.scrollWidth,
+				ab: node.scrollHeight
 			},
-			aq: {
-				v: node.scrollLeft,
-				w: node.scrollTop,
-				ar: node.clientWidth,
-				_: node.clientHeight
+			as: {
+				r: node.scrollLeft,
+				s: node.scrollTop,
+				at: node.clientWidth,
+				ab: node.clientHeight
 			}
 		};
 	});
@@ -4309,18 +4309,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			an: _Browser_getScene(),
-			aq: {
-				v: x,
-				w: y,
-				ar: _Browser_doc.documentElement.clientWidth,
-				_: _Browser_doc.documentElement.clientHeight
+			ap: _Browser_getScene(),
+			as: {
+				r: x,
+				s: y,
+				at: _Browser_doc.documentElement.clientWidth,
+				ab: _Browser_doc.documentElement.clientHeight
 			},
-			ax: {
-				v: x + rect.left,
-				w: y + rect.top,
-				ar: rect.width,
-				_: rect.height
+			az: {
+				r: x + rect.left,
+				s: y + rect.top,
+				at: rect.width,
+				ab: rect.height
 			}
 		};
 	});
@@ -4896,7 +4896,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {Z: fragment, aa: host, ae: path, ag: port_, aj: protocol, ak: query};
+		return {aa: fragment, ac: host, ag: path, ai: port_, al: protocol, am: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5177,21 +5177,23 @@ var $elm$core$Task$perform = F2(
 var $elm$browser$Browser$element = _Browser_element;
 var $author$project$Draggable$Draggable = F5(
 	function (x, y, owner, offsetX, offsetY) {
-		return {y: offsetX, z: offsetY, m: owner, v: x, w: y};
+		return {v: offsetX, w: offsetY, k: owner, r: x, s: y};
 	});
-var $author$project$Draggable$Model = F3(
-	function (text, draggable, client) {
-		return {r: client, a: draggable, o: text};
+var $author$project$Draggable$Model = F5(
+	function (text, draggable, client, isMouseUp, isWebSocketClosed) {
+		return {o: client, a: draggable, J: isMouseUp, P: isWebSocketClosed, n: text};
 	});
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Draggable$init = function (flags) {
 	return _Utils_Tuple2(
-		A3(
+		A5(
 			$author$project$Draggable$Model,
 			'text',
 			A5($author$project$Draggable$Draggable, 0, 0, 0, 0, 0),
-			0),
+			0,
+			true,
+			false),
 		$elm$core$Platform$Cmd$none);
 };
 var $author$project$Draggable$PortMessageReceived = function (a) {
@@ -5219,7 +5221,10 @@ var $author$project$Draggable$MoveDraggable = F2(
 	function (a, b) {
 		return {$: 3, a: a, b: b};
 	});
-var $author$project$Draggable$PutDraggable = {$: 2};
+var $author$project$Draggable$PutDraggable = F3(
+	function (a, b, c) {
+		return {$: 2, a: a, b: b, c: c};
+	});
 var $elm$core$Bitwise$and = _Bitwise_and;
 var $author$project$Draggable$encodePortMessage = function (message) {
 	switch (message.$) {
@@ -5233,8 +5238,11 @@ var $author$project$Draggable$encodePortMessage = function (message) {
 			return _List_fromArray(
 				[2, offsets, y, x]);
 		case 2:
+			var offsets = message.a;
+			var y = message.b;
+			var x = message.c;
 			return _List_fromArray(
-				[3, 0, 0, 0]);
+				[3, offsets, y, x]);
 		default:
 			var y = message.a;
 			var x = message.b;
@@ -5261,36 +5269,37 @@ var $author$project$Draggable$encodeAndSendPortMessage = function (message) {
 };
 var $elm$core$Basics$neq = _Utils_notEqual;
 var $author$project$Draggable$isDraggableGrabbable = function (model) {
-	return (!model.a.m) && (!(!model.r));
+	return (!model.a.k) && (!(!model.o));
 };
 var $author$project$Draggable$isDraggableGrabbed = function (model) {
-	return _Utils_eq(model.a.m, model.r) && (!(!model.r));
+	return _Utils_eq(model.a.k, model.o) && (!(!model.o));
 };
 var $elm$core$Bitwise$or = _Bitwise_or;
 var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
 var $author$project$Draggable$LoadDraggable = {$: 0};
 var $author$project$Draggable$DraggableGrabbed = F5(
 	function (a, b, c, d, e) {
-		return {$: 2, a: a, b: b, c: c, d: d, e: e};
+		return {$: 3, a: a, b: b, c: c, d: d, e: e};
 	});
 var $author$project$Draggable$DraggableLoaded = F6(
 	function (a, b, c, d, e, f) {
-		return {$: 1, a: a, b: b, c: c, d: d, e: e, f: f};
+		return {$: 2, a: a, b: b, c: c, d: d, e: e, f: f};
 	});
 var $author$project$Draggable$DraggableMoved = F5(
 	function (a, b, c, d, e) {
-		return {$: 4, a: a, b: b, c: c, d: d, e: e};
+		return {$: 5, a: a, b: b, c: c, d: d, e: e};
 	});
 var $author$project$Draggable$DraggablePutted = F5(
 	function (a, b, c, d, e) {
-		return {$: 3, a: a, b: b, c: c, d: d, e: e};
+		return {$: 4, a: a, b: b, c: c, d: d, e: e};
 	});
 var $author$project$Draggable$IncorrectPortMessageAction = function (a) {
-	return {$: 5, a: a};
-};
-var $author$project$Draggable$IncorrectPortMessageArray = function (a) {
 	return {$: 6, a: a};
 };
+var $author$project$Draggable$IncorrectPortMessageArray = function (a) {
+	return {$: 7, a: a};
+};
+var $author$project$Draggable$WebSocketClosed = {$: 1};
 var $author$project$Draggable$WebSocketReady = {$: 0};
 var $elm$core$Bitwise$shiftRightBy = _Bitwise_shiftRightBy;
 var $author$project$Draggable$decodePortMessage = function (message) {
@@ -5311,6 +5320,8 @@ var $author$project$Draggable$decodePortMessage = function (message) {
 		switch (action) {
 			case 0:
 				return $author$project$Draggable$WebSocketReady;
+			case 255:
+				return $author$project$Draggable$WebSocketClosed;
 			case 1:
 				return A6($author$project$Draggable$DraggableLoaded, extra, owner, offsetY, offsetX, y, x);
 			case 2:
@@ -5340,6 +5351,8 @@ var $author$project$Draggable$stringifyIncomingPortMessage = function (message) 
 		case 0:
 			return 'WebSocketReady';
 		case 1:
+			return 'WebSocketClosed';
+		case 2:
 			var client = message.a;
 			var owner = message.b;
 			var oy = message.c;
@@ -5349,7 +5362,7 @@ var $author$project$Draggable$stringifyIncomingPortMessage = function (message) 
 			return 'DraggableLoaded ' + $author$project$Draggable$stringifyListInt(
 				_List_fromArray(
 					[client, owner, oy, ox, y, x]));
-		case 2:
+		case 3:
 			var owner = message.a;
 			var oy = message.b;
 			var ox = message.c;
@@ -5358,7 +5371,7 @@ var $author$project$Draggable$stringifyIncomingPortMessage = function (message) 
 			return 'DraggableGrabbed ' + $author$project$Draggable$stringifyListInt(
 				_List_fromArray(
 					[owner, oy, ox, y, x]));
-		case 3:
+		case 4:
 			var owner = message.a;
 			var oy = message.b;
 			var ox = message.c;
@@ -5367,7 +5380,7 @@ var $author$project$Draggable$stringifyIncomingPortMessage = function (message) 
 			return 'DraggablePutted ' + $author$project$Draggable$stringifyListInt(
 				_List_fromArray(
 					[owner, oy, ox, y, x]));
-		case 4:
+		case 5:
 			var owner = message.a;
 			var oy = message.b;
 			var ox = message.c;
@@ -5376,7 +5389,7 @@ var $author$project$Draggable$stringifyIncomingPortMessage = function (message) 
 			return 'DraggableMoved ' + $author$project$Draggable$stringifyListInt(
 				_List_fromArray(
 					[owner, oy, ox, y, x]));
-		case 5:
+		case 6:
 			var raw = message.a;
 			return 'IncorrectPortMessageAction ' + $author$project$Draggable$stringifyListInt(raw);
 		default:
@@ -5393,9 +5406,15 @@ var $author$project$Draggable$updateOnPortMessageReceived = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{o: text}),
+						{n: text}),
 					$author$project$Draggable$encodeAndSendPortMessage($author$project$Draggable$LoadDraggable));
 			case 1:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{P: true}),
+					$elm$core$Platform$Cmd$none);
+			case 2:
 				var client = decodedMessage.a;
 				var owner = decodedMessage.b;
 				var offsetY = decodedMessage.c;
@@ -5405,26 +5424,11 @@ var $author$project$Draggable$updateOnPortMessageReceived = F2(
 				var oldDraggable = model.a;
 				var draggable = _Utils_update(
 					oldDraggable,
-					{y: offsetX, z: offsetY, m: owner, v: x, w: y});
+					{v: offsetX, w: offsetY, k: owner, r: x, s: y});
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{r: client, a: draggable, o: text}),
-					$elm$core$Platform$Cmd$none);
-			case 2:
-				var owner = decodedMessage.a;
-				var offsetY = decodedMessage.b;
-				var offsetX = decodedMessage.c;
-				var y = decodedMessage.d;
-				var x = decodedMessage.e;
-				var oldDraggable = model.a;
-				var draggable = _Utils_update(
-					oldDraggable,
-					{y: offsetX, z: offsetY, m: owner, v: x, w: y});
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{a: draggable, o: text}),
+						{o: client, a: draggable, n: text}),
 					$elm$core$Platform$Cmd$none);
 			case 3:
 				var owner = decodedMessage.a;
@@ -5435,12 +5439,23 @@ var $author$project$Draggable$updateOnPortMessageReceived = F2(
 				var oldDraggable = model.a;
 				var draggable = _Utils_update(
 					oldDraggable,
-					{y: offsetX, z: offsetY, m: owner, v: x, w: y});
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{a: draggable, o: text}),
-					$elm$core$Platform$Cmd$none);
+					{v: offsetX, w: offsetY, k: owner, r: x, s: y});
+				var _v1 = model.J;
+				if (!_v1) {
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{a: draggable, n: text}),
+						$elm$core$Platform$Cmd$none);
+				} else {
+					var offsets = (offsetY << 8) | offsetX;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{a: draggable, n: text}),
+						$author$project$Draggable$encodeAndSendPortMessage(
+							A3($author$project$Draggable$PutDraggable, offsets, y, x)));
+				}
 			case 4:
 				var owner = decodedMessage.a;
 				var offsetY = decodedMessage.b;
@@ -5450,23 +5465,38 @@ var $author$project$Draggable$updateOnPortMessageReceived = F2(
 				var oldDraggable = model.a;
 				var draggable = _Utils_update(
 					oldDraggable,
-					{y: offsetX, z: offsetY, m: owner, v: x, w: y});
+					{v: offsetX, w: offsetY, k: owner, r: x, s: y});
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{a: draggable, o: text}),
+						{a: draggable, n: text}),
 					$elm$core$Platform$Cmd$none);
 			case 5:
+				var owner = decodedMessage.a;
+				var offsetY = decodedMessage.b;
+				var offsetX = decodedMessage.c;
+				var y = decodedMessage.d;
+				var x = decodedMessage.e;
+				var oldDraggable = model.a;
+				var draggable = _Utils_update(
+					oldDraggable,
+					{v: offsetX, w: offsetY, k: owner, r: x, s: y});
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{o: text}),
+						{a: draggable, n: text}),
+					$elm$core$Platform$Cmd$none);
+			case 6:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{n: text}),
 					$elm$core$Platform$Cmd$none);
 			default:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{o: text}),
+						{n: text}),
 					$elm$core$Platform$Cmd$none);
 		}
 	});
@@ -5494,39 +5524,54 @@ var $author$project$Draggable$update = F2(
 					continue update;
 				case 3:
 					var mousePos = msg.a;
-					var _v1 = $author$project$Draggable$isDraggableGrabbable(model);
-					if (_v1) {
-						var y = mousePos.I;
-						var x = mousePos.H;
-						var offsetY = 255 & ((mousePos.I - model.a.w) + model.a.z);
-						var offsetX = 255 & ((mousePos.H - model.a.v) + model.a.y);
-						var offsets = (offsetY << 8) | offsetX;
-						return _Utils_Tuple2(
+					return _Utils_Tuple2(
+						_Utils_update(
 							model,
-							$author$project$Draggable$encodeAndSendPortMessage(
-								A3($author$project$Draggable$GrabDraggable, offsets, y, x)));
-					} else {
-						return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-					}
+							{J: false}),
+						function () {
+							var _v1 = $author$project$Draggable$isDraggableGrabbable(model);
+							if (_v1) {
+								var y = A2($elm$core$Basics$max, 0, mousePos.A);
+								var x = A2($elm$core$Basics$max, 0, mousePos.z);
+								var offsetY = 255 & ((mousePos.A - model.a.s) + model.a.w);
+								var offsetX = 255 & ((mousePos.z - model.a.r) + model.a.v);
+								var offsets = (offsetY << 8) | offsetX;
+								return $author$project$Draggable$encodeAndSendPortMessage(
+									A3($author$project$Draggable$GrabDraggable, offsets, y, x));
+							} else {
+								return $elm$core$Platform$Cmd$none;
+							}
+						}());
 				case 4:
-					var _v2 = $author$project$Draggable$isDraggableGrabbed(model);
-					if (_v2) {
-						return _Utils_Tuple2(
+					var mousePos = msg.a;
+					return _Utils_Tuple2(
+						_Utils_update(
 							model,
-							$author$project$Draggable$encodeAndSendPortMessage($author$project$Draggable$PutDraggable));
-					} else {
-						return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-					}
+							{J: true}),
+						function () {
+							var _v2 = $author$project$Draggable$isDraggableGrabbed(model);
+							if (_v2) {
+								var y = A2($elm$core$Basics$max, 0, mousePos.A);
+								var x = A2($elm$core$Basics$max, 0, mousePos.z);
+								var offsetY = 255 & ((mousePos.A - model.a.s) + model.a.w);
+								var offsetX = 255 & ((mousePos.z - model.a.r) + model.a.v);
+								var offsets = (offsetY << 8) | offsetX;
+								return $author$project$Draggable$encodeAndSendPortMessage(
+									A3($author$project$Draggable$PutDraggable, offsets, y, x));
+							} else {
+								return $elm$core$Platform$Cmd$none;
+							}
+						}());
 				default:
 					var mousePos = msg.a;
-					var _v3 = $author$project$Draggable$isDraggableGrabbed(model);
+					var _v3 = (!model.J) && $author$project$Draggable$isDraggableGrabbed(model);
 					if (_v3) {
-						var y = mousePos.I;
-						var x = mousePos.H;
+						var y = A2($elm$core$Basics$max, 0, mousePos.A);
+						var x = A2($elm$core$Basics$max, 0, mousePos.z);
 						var oldDraggable = model.a;
 						var draggable = _Utils_update(
 							oldDraggable,
-							{v: x, w: y});
+							{r: x, s: y});
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
@@ -5549,11 +5594,123 @@ var $author$project$Draggable$MouseUp = function (a) {
 	return {$: 1, a: a};
 };
 var $elm$html$Html$a = _VirtualDom_node('a');
+var $elm$random$Random$Seed = F2(
+	function (a, b) {
+		return {$: 0, a: a, b: b};
+	});
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var $elm$random$Random$next = function (_v0) {
+	var state0 = _v0.a;
+	var incr = _v0.b;
+	return A2($elm$random$Random$Seed, ((state0 * 1664525) + incr) >>> 0, incr);
+};
+var $elm$random$Random$initialSeed = function (x) {
+	var _v0 = $elm$random$Random$next(
+		A2($elm$random$Random$Seed, 0, 1013904223));
+	var state1 = _v0.a;
+	var incr = _v0.b;
+	var state2 = (state1 + x) >>> 0;
+	return $elm$random$Random$next(
+		A2($elm$random$Random$Seed, state2, incr));
+};
+var $elm$random$Random$Generator = $elm$core$Basics$identity;
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $elm$core$Bitwise$xor = _Bitwise_xor;
+var $elm$random$Random$peel = function (_v0) {
+	var state = _v0.a;
+	var word = (state ^ (state >>> ((state >>> 28) + 4))) * 277803737;
+	return ((word >>> 22) ^ word) >>> 0;
+};
+var $elm$random$Random$int = F2(
+	function (a, b) {
+		return function (seed0) {
+			var _v0 = (_Utils_cmp(a, b) < 0) ? _Utils_Tuple2(a, b) : _Utils_Tuple2(b, a);
+			var lo = _v0.a;
+			var hi = _v0.b;
+			var range = (hi - lo) + 1;
+			if (!((range - 1) & range)) {
+				return _Utils_Tuple2(
+					(((range - 1) & $elm$random$Random$peel(seed0)) >>> 0) + lo,
+					$elm$random$Random$next(seed0));
+			} else {
+				var threshhold = (((-range) >>> 0) % range) >>> 0;
+				var accountForBias = function (seed) {
+					accountForBias:
+					while (true) {
+						var x = $elm$random$Random$peel(seed);
+						var seedN = $elm$random$Random$next(seed);
+						if (_Utils_cmp(x, threshhold) < 0) {
+							var $temp$seed = seedN;
+							seed = $temp$seed;
+							continue accountForBias;
+						} else {
+							return _Utils_Tuple2((x % range) + lo, seedN);
+						}
+					}
+				};
+				return accountForBias(seed0);
+			}
+		};
+	});
+var $elm$random$Random$map3 = F4(
+	function (func, _v0, _v1, _v2) {
+		var genA = _v0;
+		var genB = _v1;
+		var genC = _v2;
+		return function (seed0) {
+			var _v3 = genA(seed0);
+			var a = _v3.a;
+			var seed1 = _v3.b;
+			var _v4 = genB(seed1);
+			var b = _v4.a;
+			var seed2 = _v4.b;
+			var _v5 = genC(seed2);
+			var c = _v5.a;
+			var seed3 = _v5.b;
+			return _Utils_Tuple2(
+				A3(func, a, b, c),
+				seed3);
+		};
+	});
+var $author$project$Draggable$randomTuple3 = function (generator) {
+	return A4(
+		$elm$random$Random$map3,
+		F3(
+			function (a, b, c) {
+				return _Utils_Tuple3(a, b, c);
+			}),
+		generator,
+		generator,
+		generator);
+};
+var $elm$random$Random$step = F2(
+	function (_v0, seed) {
+		var generator = _v0;
+		return generator(seed);
+	});
+var $author$project$Draggable$getHashedRGB = function (seed) {
+	var seed0 = $elm$random$Random$initialSeed(seed);
+	var generator = $author$project$Draggable$randomTuple3(
+		A2($elm$random$Random$int, 100, 255));
+	var _v0 = A2($elm$random$Random$step, generator, seed0);
+	var value = _v0.a;
+	return value;
+};
+var $author$project$Draggable$stringifyRGB = function (_v0) {
+	var r = _v0.a;
+	var g = _v0.b;
+	var b = _v0.c;
+	return 'rgb(' + ($elm$core$String$fromInt(r) + (',' + ($elm$core$String$fromInt(g) + (',' + ($elm$core$String$fromInt(b) + ')')))));
+};
 var $author$project$Draggable$chooseDraggableColor = function (model) {
-	var unaccessable = !model.r;
-	var ownedByClient = (!(!model.r)) && _Utils_eq(model.r, model.a.m);
-	var isFree = !model.a.m;
-	return ownedByClient ? '#FF5733' : (unaccessable ? '#C8C8C8' : (isFree ? 'white' : '#749C82'));
+	var unaccessable = !model.o;
+	var ownedByClient = (!(!model.o)) && _Utils_eq(model.o, model.a.k);
+	var isFree = !model.a.k;
+	return ownedByClient ? $author$project$Draggable$stringifyRGB(
+		$author$project$Draggable$getHashedRGB(model.o)) : (unaccessable ? '#C8C8C8' : (isFree ? 'white' : $author$project$Draggable$stringifyRGB(
+		$author$project$Draggable$getHashedRGB(model.a.k))));
 };
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
@@ -5566,7 +5723,7 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $author$project$Draggable$MousePosition = F2(
 	function (clientX, clientY) {
-		return {H: clientX, I: clientY};
+		return {z: clientX, A: clientY};
 	});
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$at = F2(
@@ -5610,10 +5767,10 @@ var $elm$html$Html$Attributes$target = $elm$html$Html$Attributes$stringProperty(
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Draggable$view = function (model) {
-	var draggableY = $elm$core$String$fromInt(model.a.w - model.a.z) + 'px';
-	var draggableX = $elm$core$String$fromInt(model.a.v - model.a.y) + 'px';
+	var draggableY = $elm$core$String$fromInt(model.a.s - model.a.w) + 'px';
+	var draggableX = $elm$core$String$fromInt(model.a.r - model.a.v) + 'px';
 	var draggableText = function (_v0) {
-		var _v1 = model.a.m;
+		var _v1 = model.a.k;
 		if (!_v1) {
 			return 'Grab me';
 		} else {
@@ -5631,6 +5788,10 @@ var $author$project$Draggable$view = function (model) {
 				A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
 				A2($elm$html$Html$Attributes$style, 'left', '0'),
 				A2($elm$html$Html$Attributes$style, 'top', '0'),
+				A2(
+				$elm$html$Html$Events$on,
+				'mouseleave',
+				A2($elm$json$Json$Decode$map, $author$project$Draggable$MouseUp, $author$project$Draggable$decodeMousePosition)),
 				A2(
 				$elm$html$Html$Events$on,
 				'mousemove',
@@ -5652,7 +5813,7 @@ var $author$project$Draggable$view = function (model) {
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text(model.o)
+						$elm$html$Html$text(model.n)
 					])),
 				A2(
 				$elm$html$Html$a,
@@ -5662,7 +5823,8 @@ var $author$project$Draggable$view = function (model) {
 						$elm$html$Html$Attributes$target('_blank'),
 						A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
 						A2($elm$html$Html$Attributes$style, 'top', '0'),
-						A2($elm$html$Html$Attributes$style, 'right', '5px')
+						A2($elm$html$Html$Attributes$style, 'right', '5px'),
+						A2($elm$html$Html$Attributes$style, 'z-index', '1000')
 					]),
 				_List_fromArray(
 					[
@@ -5684,10 +5846,24 @@ var $author$project$Draggable$view = function (model) {
 				_List_fromArray(
 					[
 						$elm$html$Html$text(draggableText)
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('connection-lost'),
+						A2(
+						$elm$html$Html$Attributes$style,
+						'display',
+						model.P ? 'flex' : 'none')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Connection lost. Reload the page')
 					]))
 			]));
 };
 var $author$project$Draggable$main = $elm$browser$Browser$element(
-	{aB: $author$project$Draggable$init, aH: $author$project$Draggable$subscriptions, aJ: $author$project$Draggable$update, aK: $author$project$Draggable$view});
+	{aD: $author$project$Draggable$init, aJ: $author$project$Draggable$subscriptions, aL: $author$project$Draggable$update, aM: $author$project$Draggable$view});
 _Platform_export({'Draggable':{'init':$author$project$Draggable$main(
 	$elm$json$Json$Decode$succeed(0))(0)}});}(this));
