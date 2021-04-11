@@ -106,22 +106,20 @@ updateOnPortMessageReceived message model =
         oldDraggable = model.draggable
         draggable    = { oldDraggable | owner = owner, offsetY = offsetY, offsetX = offsetX, y = y, x = x }
       in
+      ( { model | text = text, draggable = draggable }
+      , case model.isMouseUp of
         -- Between real server and client can be delay.
         -- If delay is bigger than clientside action, f.e. mouse click,
         -- then client actions can be processed only partially.
         -- To avoid that, there the mouse button status check is.
-        case model.isMouseUp of
-          False ->
-            ( { model | text = text, draggable = draggable }
-            , Cmd.none
-            )
           True ->
             let
               offsets = Bitwise.or ( Bitwise.shiftLeftBy 8 offsetY ) offsetX
             in
-            ( { model | text = text, draggable = draggable }
-            , encodeAndSendPortMessage ( PutDraggable offsets y x )
-            )
+            encodeAndSendPortMessage ( PutDraggable offsets y x )
+          False ->
+            Cmd.none
+      )
 
     DraggablePutted owner offsetY offsetX y x ->
       let
@@ -213,6 +211,7 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
+
     -- General messages
 
     PortMessageReceived message ->
@@ -283,11 +282,7 @@ view model =
     draggableX = String.fromInt ( model.draggable.x - model.draggable.offsetX ) ++ "px"
     draggableY = String.fromInt ( model.draggable.y - model.draggable.offsetY ) ++ "px"
     draggableColor = chooseDraggableColor model
-    draggableText = (\_ ->
-      case model.draggable.owner of
-        0 -> "Grab me"
-        _ -> ""
-      ) ()
+    draggableText = if model.draggable.owner == 0 then "Grab me" else ""
   in
   div
     -- Main container
