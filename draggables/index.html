@@ -1,0 +1,112 @@
+<html>
+<head>
+  <title>draggables</title>
+  <meta charset="utf-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap');
+    body {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 16px;
+    }
+    a {
+      color: hotpink !important;
+      text-decoration:     none;
+
+    }
+    .source-link {
+      z-index:      1000;
+      position: absolute;
+      top:          10px;
+      right:        15px;
+    }
+    .container {
+      width:       100vw;
+      height:      100vh;
+      overflow:   hidden;
+      position: absolute;
+      left:            0;
+      top:             0;
+    }
+    .draggable {
+      position:        absolute;
+      width:               64px;
+      height:              64px;
+      border-radius:       10px;
+      user-select:         none;
+      border:   1px solid black;
+      display:             flex;
+      justify-content:   center;
+      align-items:       center;
+      background:         white;
+    }
+    .connection-lost {
+      z-index:                       900;
+      width:                       100vw;
+      height:                      100vh;
+      overflow:                   hidden;
+      position:                 absolute;
+      left:                            0;
+      top:                             0;
+      background: rgba(255,255,255,0.75);
+      display:                      none;
+      justify-content:            center;
+      align-items:                center;
+      font-size:                    24px;
+    }
+    .debug-message {
+      z-index:       800;
+      position: absolute;
+      bottom:          0;
+      left:            0;
+    }
+  </style>
+  <script src="main.js"></script>
+</head>
+<body>
+
+  <!-- Elm -->
+  <div id="elm-main"></div>
+  <script>
+
+    // Run Elm app
+
+    const app = Elm.Main.init({
+      node: document.getElementById('elm-main')
+    });
+
+    // Create websocket
+
+    const host = location.host.indexOf('localhost') < 0 || false
+      ? 'wss://kotya-web.herokuapp.com'
+      : `ws://${location.host}`;
+
+    const socket = new WebSocket(`${host}/wsdraggables`);
+
+    socket.binaryType = 'arraybuffer';
+
+    // Apply websocket to Elm ports
+
+    socket.addEventListener('open', (event) => {
+      // console.log('socket open', event);
+      app.ports.receivePortMessage.send([ 0 ]);
+    });
+
+    socket.addEventListener('close', (event) => {
+      // console.log('socket close', event);
+      app.ports.receivePortMessage.send([ 0xffff ]);
+    });
+
+    socket.addEventListener('message', (event) => {
+      // console.log('socket message', event);
+      app.ports.receivePortMessage.send([ ...new Uint16Array(event.data) ]);
+    });
+
+    app.ports.sendPortMessage.subscribe((message) => {
+      socket.send(new Uint16Array(message).buffer);
+    });
+
+  </script>
+  <!-- /Elm -->
+
+</body>
+</html>
