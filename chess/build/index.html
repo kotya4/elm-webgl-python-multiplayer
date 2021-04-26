@@ -1,0 +1,103 @@
+<html>
+<head>
+  <title>chess естьжи</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../common.css">
+  <link rel="stylesheet" href="index.css">
+  <script src="main.js"></script>
+</head>
+<body>
+
+  <div id="elm-main"></div>
+
+  <script>
+
+    // Run Elm app
+
+    const app = Elm.Main.init({
+      node: document.getElementById('elm-main'),
+      flags: {
+        localStorage : localStorage.getItem( 'chess.module' ),
+      },
+    });
+
+    // Create websocket
+
+    const host = location.host.indexOf('localhost') < 0 || false
+      ? 'wss://kotya-web.herokuapp.com'
+      : `ws://${location.host}`;
+
+    const socket = new WebSocket(`${host}/wschess`);
+
+    socket.binaryType = 'arraybuffer';
+
+    // Apply websocket to Elm ports (send/receive by Elm)
+
+    socket.addEventListener('open', (event) => {
+      // console.log('socket open', event);
+      app.ports.receiveWebSocket.send([ 0 ]);
+    });
+
+    socket.addEventListener('close', (event) => {
+      // console.log('socket close', event);
+      app.ports.receiveWebSocket.send([ 0xffff ]);
+    });
+
+    socket.addEventListener('message', (event) => {
+      // console.log('socket message', event);
+      app.ports.receiveWebSocket.send([ ...new Uint16Array(event.data) ]);
+    });
+
+    app.ports.sendWebSocket.subscribe((message) => {
+      socket.send(new Uint16Array(message).buffer);
+    });
+
+    // Window resize (receive by Elm)
+
+    function onresize () {
+      app.ports.receiveWindowSize.send([ window.innerWidth, window.innerHeight ]);
+    }
+
+    onresize();
+
+    window.addEventListener('resize', onresize);
+
+    // Sound (send by Elm)
+
+    const sounds = {
+      'press.mp3' : new Audio ( 'press.mp3' ),
+      'release.mp3' : new Audio ( 'release.mp3' ),
+    };
+
+    app.ports.playSound.subscribe( ( name ) => {
+
+      sounds[ name ].play().catch( _ => {
+
+        // play() failed because the user didn't interact with the document first. https://goo.gl/xX8pDD
+
+      } );
+
+    });
+
+    app.ports.setSoundVolume.subscribe( ( volume ) => {
+
+      for ( let key in sounds ) {
+
+        sounds[ key ].volume = volume;
+
+      }
+
+    });
+
+    // LocalStorage (recieve)
+
+    app.ports.sendLocalStorage.subscribe( ( string ) => {
+
+      localStorage.setItem( 'chess.module', string );
+
+    });
+
+  </script>
+
+</body>
+</html>
