@@ -138,7 +138,6 @@ updateOnWebSocketReceived message model =
     Initialization (client::lastTimeTail::lastTimeHead::lastOwner::raw) ->
       let
         lastTime = Bitwise.or ( Bitwise.shiftLeftBy 16 lastTimeHead ) lastTimeTail
-        --draggables = List.map (\a -> { a | depth = 0 }) ( List.sortBy .depth ( draggableListFromRaw raw ) )
         draggables = List.map (\a -> { a | depth = 0 }) ( List.reverse ( List.sortBy .depth ( draggableListFromRaw raw ) ) )
       in
       ( { model | client = client, lastTime = lastTime, lastOwner = lastOwner, draggables = draggables, text = text }
@@ -597,7 +596,7 @@ view model =
         [ class "last-turn-info"
         , Html.Events.on "mouseenter" ( Json.Decode.succeed ( ShowLastDraggable ( List.head model.draggables ) ) )
         ]
-        [ text ( "Last turn was done " ++ stringifyLastTurnTime lastTurnTime ++ " seconds ago by " ++ stringifyLastOwner model.client model.lastOwner )
+        [ text ( "Last turn was done " ++ stringifyLastTurnTime lastTurnTime ++ " ago by " ++ stringifyLastOwner model.client model.lastOwner )
         ]
 
     , div
@@ -663,7 +662,20 @@ view model =
 
 stringifyLastTurnTime : Int -> String
 stringifyLastTurnTime time =
-  String.fromInt time
+  String.join " " <| List.reverse <| List.map (\ ( y, x ) -> case x of
+      0 -> ""
+      _ -> String.fromInt x ++ y
+    ) [ ( " seconds", modBy 60 time )
+      , ( " minutes", modBy 60 ( time // 60 ) )
+      , ( " hours", modBy 24 ( time // 60 // 60 ) )
+      , ( " days", modBy 30 ( time // 60 // 60 // 24 ) )
+      , ( " monthishes", modBy 12 ( time // 60 // 60 // 24 // 30 ) )
+      , ( " yearishes", modBy 10 ( time // 60 // 60 // 24 // 30 // 12 ) )
+      , ( " decadishes", modBy 10 ( time // 60 // 60 // 24 // 30 // 12 // 10 ) )
+      , ( " centurishes", modBy 10 ( time // 60 // 60 // 24 // 30 // 12 // 10 // 10 ) )
+      , ( " mileniumishes", modBy 418 ( time // 60 // 60 // 24 // 30 // 12 // 10 // 10 // 10 ) )
+      , ( " eshebates", time // 60 // 60 // 24 // 30 // 12 // 10 // 10 // 10 // 418 )
+      ]
 
 
 
