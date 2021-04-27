@@ -9,7 +9,11 @@ if "%1" == "o" goto :optimize
 
 :build
   elm make %SRC% --output="%BUILDPATH%\%OUT%"
-  if "%2" == "c" goto :copy
+  if "%1" == "c" goto :copy
+  echo Now calling build with no keys do not copy content from BUILD except SRC.
+  echo Call with C key to copy content with dev build.
+  echo Call with O key to optimize build.
+  echo Calling with O will always copy all of the content from BUILD tho
   copy "%BUILDPATH%\%OUT%" "%DST%\%OUT%" > nul
   goto :exit
 
