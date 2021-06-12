@@ -327,12 +327,14 @@ type Msg
   | DraggableMouseUp       Draggable MousePosition
   | DraggableMouseDown     Draggable MousePosition
   | DraggableMouseMove     Draggable MousePosition
+  | DraggableTouchUp     Draggable
   | MirrorThePage          MousePosition
   | ShowSettings           MousePosition
   | SetSoundVolume         String
   | RotateScreen90deg      RotateDirection
   | ShowLastDraggable      ( Maybe Draggable )
   | Tick                   Time.Posix
+  | TouchUp                
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -382,6 +384,13 @@ update msg model =
       case model.activeDraggable of
         Just activeDraggable ->
           update ( DraggableMouseUp activeDraggable mousePos ) model
+        Nothing ->
+          ( model, Cmd.none )
+
+    TouchUp ->
+      case model.activeDraggable of
+        Just activeDraggable ->
+          update ( DraggableTouchUp activeDraggable ) model
         Nothing ->
           ( model, Cmd.none )
 
@@ -456,6 +465,44 @@ update msg model =
         )
       else
         ( model, Cmd.none )
+
+
+
+    DraggableTouchUp activeDraggable ->
+      if model.client /= 0 && activeDraggable.owner == model.client then
+        let
+          x = activeDraggable.x
+          y = activeDraggable.y
+          d = { activeDraggable | owner = 0 }
+          draggables = d :: List.filter (\a -> a.id /= d.id) model.draggables
+        in
+        ( { model
+            | activeDraggable = Nothing
+            , draggables = draggables
+            , isMouseUp = True
+            , lastOwner = model.client
+            , lastTime = Time.posixToMillis model.time // 1000
+          }
+        , Cmd.batch
+            [ encodeAndSendWebSocket ( DraggablePutRequest d.id x y )
+            , playSound "release.mp3"
+            ]
+        )
+      else
+        ( model, Cmd.none )
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     -- Common
 
@@ -719,6 +766,14 @@ decodeMousePosition =
     ( Json.Decode.at [ "clientY" ] Json.Decode.float )
 
 
+decodeTouchPosition : Json.Decode.Decoder MousePosition
+decodeTouchPosition =
+  Json.Decode.map2 MousePosition
+    ( Json.Decode.at [ "touches", "0", "clientX" ] Json.Decode.float )
+    ( Json.Decode.at [ "touches", "0", "clientY" ] Json.Decode.float )
+  --Json.Decode.at [ "touches" ] ( Json.Decode.list MousePosition )
+
+
 
 
 
@@ -745,6 +800,9 @@ viewDraggables model =
     , Html.Events.on "mouseleave" ( Json.Decode.map MouseLeave decodeMousePosition )
     , Html.Events.on "mousemove" ( Json.Decode.map MouseMove decodeMousePosition )
     , Html.Events.on "mouseup" ( Json.Decode.map MouseUp decodeMousePosition )
+    , Html.Events.on "touchcancel" ( Json.Decode.map MouseLeave decodeTouchPosition )
+    , Html.Events.on "touchmove" ( Json.Decode.map MouseMove decodeTouchPosition )
+    , Html.Events.on "touchend" ( Json.Decode.succeed ( TouchUp ) )
     ]
     ( viewDraggablesAsList draggables styleScaler model )
 
@@ -785,6 +843,7 @@ viewDraggablesAsList draggables styleScaler model =
         , style "height" height
         , style "border" border
         , Html.Events.on "mousedown" ( Json.Decode.map ( DraggableMouseDown draggable ) decodeMousePosition )
+        , Html.Events.on "touchstart" ( Json.Decode.map ( DraggableMouseDown draggable ) decodeTouchPosition )
         ]
         [ img [ src ( draggableTypeSrc draggable.type_ ) ] []
         ]
