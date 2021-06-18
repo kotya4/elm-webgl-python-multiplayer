@@ -2,15 +2,20 @@
 <head>
   <title>hej elmo, jeg skrev denne besked på engelsk og oversat med google translate. Jeg elsker dig og måske vil du se denne besked ❤</title>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
   <script src="main.js"></script>
   <script src="port.js"></script>
 </head>
 <body>
   <div id="main"></div>
   <script>
+    // localStorage.removeItem ( 'three.storage' );
     port ( Elm.Main.init (
       { node : document.querySelector ( '#main' )
-      , flags : null
+      , flags :
+          { storage : JSON.parse ( localStorage.getItem ( 'three.storage' ) )
+          , size : [ window.innerWidth, window.innerHeight ]
+          }
       } ) );
   </script>
 </body>

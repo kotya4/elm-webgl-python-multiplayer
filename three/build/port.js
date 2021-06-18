@@ -13,5 +13,9 @@ function port ( app ) {
   });
 
 
+  app.ports.sendLocalStorage.subscribe ( string =>
+    localStorage.setItem ( "three.storage", string ) );
+
+
   return app;
 }
