@@ -7077,11 +7077,11 @@ var $elm$core$Array$repeat = F2(
 			});
 	});
 var $author$project$Main$defaultKeyboard = A2($elm$core$Array$repeat, 256, false);
-var $author$project$Main$Mouse = F3(
-	function (locked, movementX, movementY) {
-		return {locked: locked, movementX: movementX, movementY: movementY};
+var $author$project$Main$Mouse = F5(
+	function (locked, movementX, movementY, touchX, touchY) {
+		return {locked: locked, movementX: movementX, movementY: movementY, touchX: touchX, touchY: touchY};
 	});
-var $author$project$Main$defaultMouse = A3($author$project$Main$Mouse, false, 0, 0);
+var $author$project$Main$defaultMouse = A5($author$project$Main$Mouse, false, 0, 0, 0, 0);
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
@@ -7098,8 +7098,6 @@ var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $elm$core$Debug$log = _Debug_log;
 var $elm$json$Json$Decode$map5 = _Json_map5;
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $elm$json$Json$Decode$null = _Json_decodeNull;
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
 var $elm$json$Json$Decode$nullable = function (decoder) {
@@ -7110,6 +7108,469 @@ var $elm$json$Json$Decode$nullable = function (decoder) {
 				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, decoder)
 			]));
 };
+var $author$project$Main$RotatePlayerCamera = F2(
+	function (a, b) {
+		return {$: 'RotatePlayerCamera', a: a, b: b};
+	});
+var $author$project$Main$Y = {$: 'Y'};
+var $author$project$Main$keycodes = _List_fromArray(
+	[
+		_Utils_Tuple2('w', 87),
+		_Utils_Tuple2('s', 83),
+		_Utils_Tuple2('a', 65),
+		_Utils_Tuple2('d', 68),
+		_Utils_Tuple2('space', 32),
+		_Utils_Tuple2('shift', 16),
+		_Utils_Tuple2('1', 49),
+		_Utils_Tuple2('←', 37),
+		_Utils_Tuple2('↑', 38),
+		_Utils_Tuple2('→', 39),
+		_Utils_Tuple2('↓', 40)
+	]);
+var $author$project$Main$findCodeByKey = function (k) {
+	var find = function (l) {
+		find:
+		while (true) {
+			if (l.b) {
+				var _v1 = l.a;
+				var key = _v1.a;
+				var code = _v1.b;
+				var xs = l.b;
+				if (_Utils_eq(key, k)) {
+					return code;
+				} else {
+					var $temp$l = xs;
+					l = $temp$l;
+					continue find;
+				}
+			} else {
+				return -1;
+			}
+		}
+	};
+	return find($author$project$Main$keycodes);
+};
+var $elm$json$Json$Encode$float = _Json_wrap;
+var $author$project$Main$X = {$: 'X'};
+var $elm_explorations$linear_algebra$Math$Vector3$k = A3(_MJS_v3, 0, 0, 1);
+var $elm$core$Basics$cos = _Basics_cos;
+var $elm_explorations$linear_algebra$Math$Vector3$getX = _MJS_v3getX;
+var $elm_explorations$linear_algebra$Math$Vector3$getY = _MJS_v3getY;
+var $elm_explorations$linear_algebra$Math$Vector3$getZ = _MJS_v3getZ;
+var $elm$core$Basics$sin = _Basics_sin;
+var $elm_explorations$linear_algebra$Math$Vector3$vec3 = _MJS_v3;
+var $author$project$Main$rotateVec3 = F3(
+	function (angle, axis, v) {
+		var z = $elm_explorations$linear_algebra$Math$Vector3$getZ(v);
+		var y = $elm_explorations$linear_algebra$Math$Vector3$getY(v);
+		var x = $elm_explorations$linear_algebra$Math$Vector3$getX(v);
+		var s = $elm$core$Basics$sin(angle);
+		var c = $elm$core$Basics$cos(angle);
+		switch (axis.$) {
+			case 'X':
+				return A3($elm_explorations$linear_algebra$Math$Vector3$vec3, x, (y * c) - (z * s), (y * s) + (z * c));
+			case 'Y':
+				return A3($elm_explorations$linear_algebra$Math$Vector3$vec3, (x * c) + (z * s), y, (z * c) - (x * s));
+			default:
+				return A3($elm_explorations$linear_algebra$Math$Vector3$vec3, (x * c) - (y * s), (x * s) + (y * c), z);
+		}
+	});
+var $author$project$Main$forwardVec3 = F2(
+	function (pitch, yaw) {
+		return A3(
+			$author$project$Main$rotateVec3,
+			yaw,
+			$author$project$Main$Y,
+			A3($author$project$Main$rotateVec3, pitch, $author$project$Main$X, $elm_explorations$linear_algebra$Math$Vector3$k));
+	});
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
+var $elm$core$Basics$ge = _Utils_ge;
+var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
+var $elm$core$Array$getHelp = F3(
+	function (shift, index, tree) {
+		getHelp:
+		while (true) {
+			var pos = $elm$core$Array$bitMask & (index >>> shift);
+			var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+			if (_v0.$ === 'SubTree') {
+				var subTree = _v0.a;
+				var $temp$shift = shift - $elm$core$Array$shiftStep,
+					$temp$index = index,
+					$temp$tree = subTree;
+				shift = $temp$shift;
+				index = $temp$index;
+				tree = $temp$tree;
+				continue getHelp;
+			} else {
+				var values = _v0.a;
+				return A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, values);
+			}
+		}
+	});
+var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
+var $elm$core$Array$tailIndex = function (len) {
+	return (len >>> 5) << 5;
+};
+var $elm$core$Array$get = F2(
+	function (index, _v0) {
+		var len = _v0.a;
+		var startShift = _v0.b;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? $elm$core$Maybe$Nothing : ((_Utils_cmp(
+			index,
+			$elm$core$Array$tailIndex(len)) > -1) ? $elm$core$Maybe$Just(
+			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
+			A3($elm$core$Array$getHelp, startShift, index, tree)));
+	});
+var $elm_explorations$linear_algebra$Math$Vector3$j = A3(_MJS_v3, 0, 1, 0);
+var $elm$core$Basics$min = F2(
+	function (x, y) {
+		return (_Utils_cmp(x, y) < 0) ? x : y;
+	});
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $elm$json$Json$Encode$object = function (pairs) {
+	return _Json_wrap(
+		A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v0, obj) {
+					var k = _v0.a;
+					var v = _v0.b;
+					return A3(_Json_addField, k, v, obj);
+				}),
+			_Json_emptyObject(_Utils_Tuple0),
+			pairs));
+};
+var $elm$core$Basics$pi = _Basics_pi;
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Main$sendLocalStorage = _Platform_outgoingPort('sendLocalStorage', $elm$json$Json$Encode$string);
+var $elm$json$Json$Encode$null = _Json_encodeNull;
+var $author$project$Main$sendRequestPointerLock = _Platform_outgoingPort(
+	'sendRequestPointerLock',
+	function ($) {
+		return $elm$json$Json$Encode$null;
+	});
+var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
+var $elm$core$Array$setHelp = F4(
+	function (shift, index, value, tree) {
+		var pos = $elm$core$Array$bitMask & (index >>> shift);
+		var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+		if (_v0.$ === 'SubTree') {
+			var subTree = _v0.a;
+			var newSub = A4($elm$core$Array$setHelp, shift - $elm$core$Array$shiftStep, index, value, subTree);
+			return A3(
+				$elm$core$Elm$JsArray$unsafeSet,
+				pos,
+				$elm$core$Array$SubTree(newSub),
+				tree);
+		} else {
+			var values = _v0.a;
+			var newLeaf = A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, values);
+			return A3(
+				$elm$core$Elm$JsArray$unsafeSet,
+				pos,
+				$elm$core$Array$Leaf(newLeaf),
+				tree);
+		}
+	});
+var $elm$core$Array$set = F3(
+	function (index, value, array) {
+		var len = array.a;
+		var startShift = array.b;
+		var tree = array.c;
+		var tail = array.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? array : ((_Utils_cmp(
+			index,
+			$elm$core$Array$tailIndex(len)) > -1) ? A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			tree,
+			A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, tail)) : A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			A4($elm$core$Array$setHelp, startShift, index, value, tree),
+			tail));
+	});
+var $author$project$Main$update = F2(
+	function (message, model) {
+		update:
+		while (true) {
+			switch (message.$) {
+				case 'TouchStart':
+					var x = message.a;
+					var y = message.b;
+					var mouse = model.mouse;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								mouse: _Utils_update(
+									mouse,
+									{touchX: x, touchY: y})
+							}),
+						$elm$core$Platform$Cmd$none);
+				case 'TouchMove':
+					var x = message.a;
+					var y = message.b;
+					var mouse = model.mouse;
+					var mx = x - mouse.touchX;
+					var my = y - mouse.touchY;
+					var $temp$message = A2($author$project$Main$RotatePlayerCamera, mx, my),
+						$temp$model = _Utils_update(
+						model,
+						{
+							mouse: _Utils_update(
+								mouse,
+								{touchX: x, touchY: y})
+						});
+					message = $temp$message;
+					model = $temp$model;
+					continue update;
+				case 'ResizeDisplay':
+					var w = message.a;
+					var h = message.b;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								size: _Utils_Tuple2(w, h)
+							}),
+						$elm$core$Platform$Cmd$none);
+				case 'NextFrame':
+					var delta = message.a;
+					var player = model.player;
+					var newtime = model.time + delta;
+					var newstoragetimer = model.storageTimer + delta;
+					var movespeed = 0.1;
+					var tuplify = function (v) {
+						return _Utils_Tuple3(
+							$elm_explorations$linear_algebra$Math$Vector3$getX(v) * movespeed,
+							$elm_explorations$linear_algebra$Math$Vector3$getY(v) * movespeed,
+							$elm_explorations$linear_algebra$Math$Vector3$getZ(v) * movespeed);
+					};
+					var justkey = function (k) {
+						if (k.$ === 'Just') {
+							var v = k.a;
+							return v;
+						} else {
+							return false;
+						}
+					};
+					var q = justkey(
+						A2(
+							$elm$core$Array$get,
+							$author$project$Main$findCodeByKey('space'),
+							model.keyboard));
+					var s = justkey(
+						A2(
+							$elm$core$Array$get,
+							$author$project$Main$findCodeByKey('s'),
+							model.keyboard));
+					var w = justkey(
+						A2(
+							$elm$core$Array$get,
+							$author$project$Main$findCodeByKey('w'),
+							model.keyboard));
+					var f = A2($author$project$Main$forwardVec3, player.pitch, player.yaw);
+					var e = justkey(
+						A2(
+							$elm$core$Array$get,
+							$author$project$Main$findCodeByKey('shift'),
+							model.keyboard));
+					var d = justkey(
+						A2(
+							$elm$core$Array$get,
+							$author$project$Main$findCodeByKey('d'),
+							model.keyboard));
+					var at = justkey(
+						A2(
+							$elm$core$Array$get,
+							$author$project$Main$findCodeByKey('↑'),
+							model.keyboard));
+					var ar = justkey(
+						A2(
+							$elm$core$Array$get,
+							$author$project$Main$findCodeByKey('→'),
+							model.keyboard));
+					var al = justkey(
+						A2(
+							$elm$core$Array$get,
+							$author$project$Main$findCodeByKey('←'),
+							model.keyboard));
+					var dx = al ? (-1) : (ar ? 1 : 0);
+					var ab = justkey(
+						A2(
+							$elm$core$Array$get,
+							$author$project$Main$findCodeByKey('↓'),
+							model.keyboard));
+					var dy = at ? (-1) : (ab ? 1 : 0);
+					var rotatedisplay = function (_v7) {
+						var m = _v7.a;
+						var c = _v7.b;
+						return ((!(!dx)) || (!(!dy))) ? A2(
+							$author$project$Main$update,
+							A2($author$project$Main$RotatePlayerCamera, dx, dy),
+							m) : _Utils_Tuple2(m, c);
+					};
+					var a = justkey(
+						A2(
+							$elm$core$Array$get,
+							$author$project$Main$findCodeByKey('a'),
+							model.keyboard));
+					var _v1 = tuplify($elm_explorations$linear_algebra$Math$Vector3$j);
+					var ux = _v1.a;
+					var uy = _v1.b;
+					var uz = _v1.c;
+					var _v2 = q ? _Utils_Tuple3(ux, uy, uz) : (e ? _Utils_Tuple3(-ux, -uy, -uz) : _Utils_Tuple3(0, 0, 0));
+					var udx = _v2.a;
+					var udy = _v2.b;
+					var udz = _v2.c;
+					var _v3 = tuplify(
+						A3($author$project$Main$rotateVec3, $elm$core$Basics$pi / 2, $author$project$Main$Y, f));
+					var rx = _v3.a;
+					var ry = _v3.b;
+					var rz = _v3.c;
+					var _v4 = a ? _Utils_Tuple3(rx, ry, rz) : (d ? _Utils_Tuple3(-rx, -ry, -rz) : _Utils_Tuple3(0, 0, 0));
+					var rdx = _v4.a;
+					var rdy = _v4.b;
+					var rdz = _v4.c;
+					var _v5 = tuplify(f);
+					var fx = _v5.a;
+					var fy = _v5.b;
+					var fz = _v5.c;
+					var _v6 = w ? _Utils_Tuple3(fx, fy, fz) : (s ? _Utils_Tuple3(-fx, -fy, -fz) : _Utils_Tuple3(0, 0, 0));
+					var fdx = _v6.a;
+					var fdy = _v6.b;
+					var fdz = _v6.c;
+					var x = ((player.x + fdx) + rdx) + udx;
+					var y = ((player.y + fdy) + rdy) + udy;
+					var z = ((player.z + fdz) + rdz) + udz;
+					var newplayer = _Utils_update(
+						player,
+						{x: x, y: y, z: z});
+					var newmodel = _Utils_update(
+						model,
+						{player: newplayer, storageTimer: newstoragetimer, time: newtime});
+					return rotatedisplay(
+						function () {
+							if (newstoragetimer > 10000) {
+								var mewstorage = A2(
+									$elm$json$Json$Encode$encode,
+									0,
+									$elm$json$Json$Encode$object(
+										_List_fromArray(
+											[
+												_Utils_Tuple2(
+												'x',
+												$elm$json$Json$Encode$float(player.x)),
+												_Utils_Tuple2(
+												'y',
+												$elm$json$Json$Encode$float(player.y)),
+												_Utils_Tuple2(
+												'z',
+												$elm$json$Json$Encode$float(player.z)),
+												_Utils_Tuple2(
+												'pitch',
+												$elm$json$Json$Encode$float(player.pitch)),
+												_Utils_Tuple2(
+												'yaw',
+												$elm$json$Json$Encode$float(player.yaw))
+											])));
+								var d2 = A2($elm$core$Debug$log, 'storagetimer', 'ok');
+								return _Utils_Tuple2(
+									_Utils_update(
+										newmodel,
+										{storageTimer: 0}),
+									$author$project$Main$sendLocalStorage(mewstorage));
+							} else {
+								return _Utils_Tuple2(newmodel, $elm$core$Platform$Cmd$none);
+							}
+						}());
+				case 'KeyDown':
+					var code = message.a;
+					var newmodel = _Utils_update(
+						model,
+						{
+							keyboard: A3($elm$core$Array$set, code, true, model.keyboard)
+						});
+					var d = A2($elm$core$Debug$log, 'key', code);
+					if (_Utils_eq(
+						code,
+						$author$project$Main$findCodeByKey('1'))) {
+						var player = newmodel.player;
+						var $temp$message = A2($author$project$Main$RotatePlayerCamera, 0, 0),
+							$temp$model = _Utils_update(
+							newmodel,
+							{
+								player: _Utils_update(
+									player,
+									{pitch: 0, x: 0, y: 0, yaw: 0, z: -15})
+							});
+						message = $temp$message;
+						model = $temp$model;
+						continue update;
+					} else {
+						return _Utils_Tuple2(newmodel, $elm$core$Platform$Cmd$none);
+					}
+				case 'KeyUp':
+					var code = message.a;
+					var newmodel = _Utils_update(
+						model,
+						{
+							keyboard: A3($elm$core$Array$set, code, false, model.keyboard)
+						});
+					return _Utils_Tuple2(newmodel, $elm$core$Platform$Cmd$none);
+				case 'SendRequestPointerLock':
+					var d = A2($elm$core$Debug$log, 'request', 'sent');
+					return _Utils_Tuple2(
+						model,
+						$author$project$Main$sendRequestPointerLock(_Utils_Tuple0));
+				case 'RotatePlayerCamera':
+					var dx = message.a;
+					var dy = message.b;
+					var player = model.player;
+					var mousespeed = 0.01;
+					var pitch = A2(
+						$elm$core$Basics$max,
+						(-$elm$core$Basics$pi) / 2,
+						A2($elm$core$Basics$min, $elm$core$Basics$pi / 2, player.pitch + (dy * mousespeed)));
+					var yaw = player.yaw - (dx * mousespeed);
+					var newplayer = _Utils_update(
+						player,
+						{pitch: pitch, yaw: yaw});
+					var mouse = model.mouse;
+					var newmouse = _Utils_update(
+						mouse,
+						{movementX: dx, movementY: dy});
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{mouse: newmouse, player: newplayer}),
+						$elm$core$Platform$Cmd$none);
+				case 'UpdatePointerLock':
+					var locked = message.a;
+					var mouse = model.mouse;
+					var newmouse = _Utils_update(
+						mouse,
+						{locked: locked, movementX: 0, movementY: 0});
+					var d = A2($elm$core$Debug$log, 'locked', locked);
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{mouse: newmouse}),
+						$elm$core$Platform$Cmd$none);
+				default:
+					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			}
+		}
+	});
 var $author$project$Main$init = function (f) {
 	var stor = A6(
 		$elm$json$Json$Decode$map5,
@@ -7202,14 +7663,12 @@ var $author$project$Main$init = function (f) {
 		_Utils_Tuple2(
 			storage,
 			_Utils_Tuple2(w, h)));
-	return _Utils_Tuple2(
+	return A2(
+		$author$project$Main$update,
+		A2($author$project$Main$ResizeDisplay, w, h),
 		_Utils_update(
 			$author$project$Main$defaultModel,
-			{
-				player: storage,
-				size: _Utils_Tuple2(w, h)
-			}),
-		$elm$core$Platform$Cmd$none);
+			{player: storage}));
 };
 var $elm$browser$Browser$AnimationManager$Delta = function (a) {
 	return {$: 'Delta', a: a};
@@ -7762,443 +8221,31 @@ var $elm$browser$Browser$Events$onResize = function (func) {
 };
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $author$project$Main$resvRequestPointerLock = _Platform_incomingPort('resvRequestPointerLock', $elm$json$Json$Decode$bool);
-var $author$project$Main$RotatePlayerCamera = F2(
-	function (a, b) {
-		return {$: 'RotatePlayerCamera', a: a, b: b};
-	});
-var $author$project$Main$Y = {$: 'Y'};
-var $author$project$Main$keycodes = _List_fromArray(
-	[
-		_Utils_Tuple2('w', 87),
-		_Utils_Tuple2('s', 83),
-		_Utils_Tuple2('a', 65),
-		_Utils_Tuple2('d', 68),
-		_Utils_Tuple2('space', 32),
-		_Utils_Tuple2('shift', 16),
-		_Utils_Tuple2('1', 49),
-		_Utils_Tuple2('←', 37),
-		_Utils_Tuple2('↑', 38),
-		_Utils_Tuple2('→', 39),
-		_Utils_Tuple2('↓', 40)
-	]);
-var $author$project$Main$findCodeByKey = function (k) {
-	var find = function (l) {
-		find:
-		while (true) {
-			if (l.b) {
-				var _v1 = l.a;
-				var key = _v1.a;
-				var code = _v1.b;
-				var xs = l.b;
-				if (_Utils_eq(key, k)) {
-					return code;
-				} else {
-					var $temp$l = xs;
-					l = $temp$l;
-					continue find;
-				}
-			} else {
-				return -1;
-			}
-		}
-	};
-	return find($author$project$Main$keycodes);
-};
-var $elm$json$Json$Encode$float = _Json_wrap;
-var $author$project$Main$X = {$: 'X'};
-var $elm_explorations$linear_algebra$Math$Vector3$k = A3(_MJS_v3, 0, 0, 1);
-var $elm$core$Basics$cos = _Basics_cos;
-var $elm_explorations$linear_algebra$Math$Vector3$getX = _MJS_v3getX;
-var $elm_explorations$linear_algebra$Math$Vector3$getY = _MJS_v3getY;
-var $elm_explorations$linear_algebra$Math$Vector3$getZ = _MJS_v3getZ;
-var $elm$core$Basics$sin = _Basics_sin;
-var $elm_explorations$linear_algebra$Math$Vector3$vec3 = _MJS_v3;
-var $author$project$Main$rotateVec3 = F3(
-	function (angle, axis, v) {
-		var z = $elm_explorations$linear_algebra$Math$Vector3$getZ(v);
-		var y = $elm_explorations$linear_algebra$Math$Vector3$getY(v);
-		var x = $elm_explorations$linear_algebra$Math$Vector3$getX(v);
-		var s = $elm$core$Basics$sin(angle);
-		var c = $elm$core$Basics$cos(angle);
-		switch (axis.$) {
-			case 'X':
-				return A3($elm_explorations$linear_algebra$Math$Vector3$vec3, x, (y * c) - (z * s), (y * s) + (z * c));
-			case 'Y':
-				return A3($elm_explorations$linear_algebra$Math$Vector3$vec3, (x * c) + (z * s), y, (z * c) - (x * s));
-			default:
-				return A3($elm_explorations$linear_algebra$Math$Vector3$vec3, (x * c) - (y * s), (x * s) + (y * c), z);
-		}
-	});
-var $author$project$Main$forwardVec3 = F2(
-	function (pitch, yaw) {
-		return A3(
-			$author$project$Main$rotateVec3,
-			yaw,
-			$author$project$Main$Y,
-			A3($author$project$Main$rotateVec3, pitch, $author$project$Main$X, $elm_explorations$linear_algebra$Math$Vector3$k));
-	});
-var $elm$core$Bitwise$and = _Bitwise_and;
-var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
-var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
-var $elm$core$Basics$ge = _Utils_ge;
-var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
-var $elm$core$Array$getHelp = F3(
-	function (shift, index, tree) {
-		getHelp:
-		while (true) {
-			var pos = $elm$core$Array$bitMask & (index >>> shift);
-			var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
-			if (_v0.$ === 'SubTree') {
-				var subTree = _v0.a;
-				var $temp$shift = shift - $elm$core$Array$shiftStep,
-					$temp$index = index,
-					$temp$tree = subTree;
-				shift = $temp$shift;
-				index = $temp$index;
-				tree = $temp$tree;
-				continue getHelp;
-			} else {
-				var values = _v0.a;
-				return A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, values);
-			}
-		}
-	});
-var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
-var $elm$core$Array$tailIndex = function (len) {
-	return (len >>> 5) << 5;
-};
-var $elm$core$Array$get = F2(
-	function (index, _v0) {
-		var len = _v0.a;
-		var startShift = _v0.b;
-		var tree = _v0.c;
-		var tail = _v0.d;
-		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? $elm$core$Maybe$Nothing : ((_Utils_cmp(
-			index,
-			$elm$core$Array$tailIndex(len)) > -1) ? $elm$core$Maybe$Just(
-			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
-			A3($elm$core$Array$getHelp, startShift, index, tree)));
-	});
-var $elm_explorations$linear_algebra$Math$Vector3$j = A3(_MJS_v3, 0, 1, 0);
-var $elm$core$Basics$min = F2(
-	function (x, y) {
-		return (_Utils_cmp(x, y) < 0) ? x : y;
-	});
-var $elm$core$Basics$neq = _Utils_notEqual;
-var $elm$json$Json$Encode$object = function (pairs) {
-	return _Json_wrap(
-		A3(
-			$elm$core$List$foldl,
-			F2(
-				function (_v0, obj) {
-					var k = _v0.a;
-					var v = _v0.b;
-					return A3(_Json_addField, k, v, obj);
-				}),
-			_Json_emptyObject(_Utils_Tuple0),
-			pairs));
-};
-var $elm$core$Basics$pi = _Basics_pi;
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $author$project$Main$sendLocalStorage = _Platform_outgoingPort('sendLocalStorage', $elm$json$Json$Encode$string);
-var $elm$json$Json$Encode$null = _Json_encodeNull;
-var $author$project$Main$sendRequestPointerLock = _Platform_outgoingPort(
-	'sendRequestPointerLock',
-	function ($) {
-		return $elm$json$Json$Encode$null;
-	});
-var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
-var $elm$core$Array$setHelp = F4(
-	function (shift, index, value, tree) {
-		var pos = $elm$core$Array$bitMask & (index >>> shift);
-		var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
-		if (_v0.$ === 'SubTree') {
-			var subTree = _v0.a;
-			var newSub = A4($elm$core$Array$setHelp, shift - $elm$core$Array$shiftStep, index, value, subTree);
-			return A3(
-				$elm$core$Elm$JsArray$unsafeSet,
-				pos,
-				$elm$core$Array$SubTree(newSub),
-				tree);
-		} else {
-			var values = _v0.a;
-			var newLeaf = A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, values);
-			return A3(
-				$elm$core$Elm$JsArray$unsafeSet,
-				pos,
-				$elm$core$Array$Leaf(newLeaf),
-				tree);
-		}
-	});
-var $elm$core$Array$set = F3(
-	function (index, value, array) {
-		var len = array.a;
-		var startShift = array.b;
-		var tree = array.c;
-		var tail = array.d;
-		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? array : ((_Utils_cmp(
-			index,
-			$elm$core$Array$tailIndex(len)) > -1) ? A4(
-			$elm$core$Array$Array_elm_builtin,
-			len,
-			startShift,
-			tree,
-			A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, tail)) : A4(
-			$elm$core$Array$Array_elm_builtin,
-			len,
-			startShift,
-			A4($elm$core$Array$setHelp, startShift, index, value, tree),
-			tail));
-	});
-var $author$project$Main$update = F2(
-	function (message, model) {
-		update:
-		while (true) {
-			switch (message.$) {
-				case 'ResizeDisplay':
-					var w = message.a;
-					var h = message.b;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								size: _Utils_Tuple2(w, h)
-							}),
-						$elm$core$Platform$Cmd$none);
-				case 'NextFrame':
-					var delta = message.a;
-					var player = model.player;
-					var newtime = model.time + delta;
-					var newstoragetimer = model.storageTimer + delta;
-					var movespeed = 0.1;
-					var tuplify = function (v) {
-						return _Utils_Tuple3(
-							$elm_explorations$linear_algebra$Math$Vector3$getX(v) * movespeed,
-							$elm_explorations$linear_algebra$Math$Vector3$getY(v) * movespeed,
-							$elm_explorations$linear_algebra$Math$Vector3$getZ(v) * movespeed);
-					};
-					var justkey = function (k) {
-						if (k.$ === 'Just') {
-							var v = k.a;
-							return v;
-						} else {
-							return false;
-						}
-					};
-					var q = justkey(
-						A2(
-							$elm$core$Array$get,
-							$author$project$Main$findCodeByKey('space'),
-							model.keyboard));
-					var s = justkey(
-						A2(
-							$elm$core$Array$get,
-							$author$project$Main$findCodeByKey('s'),
-							model.keyboard));
-					var w = justkey(
-						A2(
-							$elm$core$Array$get,
-							$author$project$Main$findCodeByKey('w'),
-							model.keyboard));
-					var f = A2($author$project$Main$forwardVec3, player.pitch, player.yaw);
-					var e = justkey(
-						A2(
-							$elm$core$Array$get,
-							$author$project$Main$findCodeByKey('shift'),
-							model.keyboard));
-					var d = justkey(
-						A2(
-							$elm$core$Array$get,
-							$author$project$Main$findCodeByKey('d'),
-							model.keyboard));
-					var at = justkey(
-						A2(
-							$elm$core$Array$get,
-							$author$project$Main$findCodeByKey('↑'),
-							model.keyboard));
-					var ar = justkey(
-						A2(
-							$elm$core$Array$get,
-							$author$project$Main$findCodeByKey('→'),
-							model.keyboard));
-					var al = justkey(
-						A2(
-							$elm$core$Array$get,
-							$author$project$Main$findCodeByKey('←'),
-							model.keyboard));
-					var dx = al ? (-1) : (ar ? 1 : 0);
-					var ab = justkey(
-						A2(
-							$elm$core$Array$get,
-							$author$project$Main$findCodeByKey('↓'),
-							model.keyboard));
-					var dy = at ? (-1) : (ab ? 1 : 0);
-					var rotatedisplay = function (_v7) {
-						var m = _v7.a;
-						var c = _v7.b;
-						return ((!(!dx)) || (!(!dy))) ? A2(
-							$author$project$Main$update,
-							A2($author$project$Main$RotatePlayerCamera, dx, dy),
-							m) : _Utils_Tuple2(m, c);
-					};
-					var a = justkey(
-						A2(
-							$elm$core$Array$get,
-							$author$project$Main$findCodeByKey('a'),
-							model.keyboard));
-					var _v1 = tuplify($elm_explorations$linear_algebra$Math$Vector3$j);
-					var ux = _v1.a;
-					var uy = _v1.b;
-					var uz = _v1.c;
-					var _v2 = q ? _Utils_Tuple3(ux, uy, uz) : (e ? _Utils_Tuple3(-ux, -uy, -uz) : _Utils_Tuple3(0, 0, 0));
-					var udx = _v2.a;
-					var udy = _v2.b;
-					var udz = _v2.c;
-					var _v3 = tuplify(
-						A3($author$project$Main$rotateVec3, $elm$core$Basics$pi / 2, $author$project$Main$Y, f));
-					var rx = _v3.a;
-					var ry = _v3.b;
-					var rz = _v3.c;
-					var _v4 = a ? _Utils_Tuple3(rx, ry, rz) : (d ? _Utils_Tuple3(-rx, -ry, -rz) : _Utils_Tuple3(0, 0, 0));
-					var rdx = _v4.a;
-					var rdy = _v4.b;
-					var rdz = _v4.c;
-					var _v5 = tuplify(f);
-					var fx = _v5.a;
-					var fy = _v5.b;
-					var fz = _v5.c;
-					var _v6 = w ? _Utils_Tuple3(fx, fy, fz) : (s ? _Utils_Tuple3(-fx, -fy, -fz) : _Utils_Tuple3(0, 0, 0));
-					var fdx = _v6.a;
-					var fdy = _v6.b;
-					var fdz = _v6.c;
-					var x = ((player.x + fdx) + rdx) + udx;
-					var y = ((player.y + fdy) + rdy) + udy;
-					var z = ((player.z + fdz) + rdz) + udz;
-					var newplayer = _Utils_update(
-						player,
-						{x: x, y: y, z: z});
-					var newmodel = _Utils_update(
-						model,
-						{player: newplayer, storageTimer: newstoragetimer, time: newtime});
-					return rotatedisplay(
-						function () {
-							if (newstoragetimer > 10000) {
-								var mewstorage = A2(
-									$elm$json$Json$Encode$encode,
-									0,
-									$elm$json$Json$Encode$object(
-										_List_fromArray(
-											[
-												_Utils_Tuple2(
-												'x',
-												$elm$json$Json$Encode$float(player.x)),
-												_Utils_Tuple2(
-												'y',
-												$elm$json$Json$Encode$float(player.y)),
-												_Utils_Tuple2(
-												'z',
-												$elm$json$Json$Encode$float(player.z)),
-												_Utils_Tuple2(
-												'pitch',
-												$elm$json$Json$Encode$float(player.pitch)),
-												_Utils_Tuple2(
-												'yaw',
-												$elm$json$Json$Encode$float(player.yaw))
-											])));
-								var d2 = A2($elm$core$Debug$log, 'storagetimer', 'ok');
-								return _Utils_Tuple2(
-									_Utils_update(
-										newmodel,
-										{storageTimer: 0}),
-									$author$project$Main$sendLocalStorage(mewstorage));
-							} else {
-								return _Utils_Tuple2(newmodel, $elm$core$Platform$Cmd$none);
-							}
-						}());
-				case 'KeyDown':
-					var code = message.a;
-					var newmodel = _Utils_update(
-						model,
-						{
-							keyboard: A3($elm$core$Array$set, code, true, model.keyboard)
-						});
-					var d = A2($elm$core$Debug$log, 'key', code);
-					if (_Utils_eq(
-						code,
-						$author$project$Main$findCodeByKey('1'))) {
-						var player = newmodel.player;
-						var $temp$message = A2($author$project$Main$RotatePlayerCamera, 0, 0),
-							$temp$model = _Utils_update(
-							newmodel,
-							{
-								player: _Utils_update(
-									player,
-									{pitch: 0, x: 0, y: 0, yaw: 0, z: -15})
-							});
-						message = $temp$message;
-						model = $temp$model;
-						continue update;
-					} else {
-						return _Utils_Tuple2(newmodel, $elm$core$Platform$Cmd$none);
-					}
-				case 'KeyUp':
-					var code = message.a;
-					var newmodel = _Utils_update(
-						model,
-						{
-							keyboard: A3($elm$core$Array$set, code, false, model.keyboard)
-						});
-					return _Utils_Tuple2(newmodel, $elm$core$Platform$Cmd$none);
-				case 'SendRequestPointerLock':
-					var d = A2($elm$core$Debug$log, 'request', 'sent');
-					return _Utils_Tuple2(
-						model,
-						$author$project$Main$sendRequestPointerLock(_Utils_Tuple0));
-				case 'RotatePlayerCamera':
-					var dx = message.a;
-					var dy = message.b;
-					var player = model.player;
-					var mousespeed = 0.01;
-					var pitch = A2(
-						$elm$core$Basics$max,
-						(-$elm$core$Basics$pi) / 2,
-						A2($elm$core$Basics$min, $elm$core$Basics$pi / 2, player.pitch + (dy * mousespeed)));
-					var yaw = player.yaw - (dx * mousespeed);
-					var newplayer = _Utils_update(
-						player,
-						{pitch: pitch, yaw: yaw});
-					var mouse = model.mouse;
-					var newmouse = _Utils_update(
-						mouse,
-						{movementX: dx, movementY: dy});
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{mouse: newmouse, player: newplayer}),
-						$elm$core$Platform$Cmd$none);
-				case 'UpdatePointerLock':
-					var locked = message.a;
-					var mouse = model.mouse;
-					var newmouse = _Utils_update(
-						mouse,
-						{locked: locked, movementX: 0, movementY: 0});
-					var d = A2($elm$core$Debug$log, 'locked', locked);
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{mouse: newmouse}),
-						$elm$core$Platform$Cmd$none);
-				default:
-					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-			}
-		}
-	});
 var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $author$project$Main$ElmoElskerSoccer = {$: 'ElmoElskerSoccer'};
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$virtual_dom$VirtualDom$MayPreventDefault = function (a) {
+	return {$: 'MayPreventDefault', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$preventDefaultOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayPreventDefault(decoder));
+	});
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
-var $author$project$Main$ElmoElskerSoccer = {$: 'ElmoElskerSoccer'};
 var $author$project$Main$SendRequestPointerLock = {$: 'SendRequestPointerLock'};
+var $author$project$Main$TouchMove = F2(
+	function (a, b) {
+		return {$: 'TouchMove', a: a, b: b};
+	});
+var $author$project$Main$TouchStart = F2(
+	function (a, b) {
+		return {$: 'TouchStart', a: a, b: b};
+	});
 var $author$project$Main$Uniforms = F3(
 	function (time, perspective, rotation) {
 		return {perspective: perspective, rotation: rotation, time: time};
@@ -8300,7 +8347,6 @@ var $elm_explorations$linear_algebra$Math$Matrix4$mul = _MJS_m4x4mul;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
 var $elm$html$Html$Events$on = F2(
 	function (event, decoder) {
 		return A2(
@@ -8678,6 +8724,21 @@ var $author$project$Main$view = function (_v0) {
 	var size = _v0.size;
 	var mouse = _v0.mouse;
 	var up = $elm_explorations$linear_algebra$Math$Vector3$j;
+	var touch = function (msg) {
+		return A3(
+			$elm$json$Json$Decode$map2,
+			msg,
+			A2(
+				$elm$json$Json$Decode$at,
+				_List_fromArray(
+					['touches', '0', 'clientX']),
+				$elm$json$Json$Decode$int),
+			A2(
+				$elm$json$Json$Decode$at,
+				_List_fromArray(
+					['touches', '0', 'clientY']),
+				$elm$json$Json$Decode$int));
+	};
 	var rotation = A2(
 		$elm_explorations$linear_algebra$Math$Matrix4$mul,
 		A2($elm_explorations$linear_algebra$Math$Matrix4$makeRotate, (0.5 * time) / 1000, $elm_explorations$linear_algebra$Math$Vector3$j),
@@ -8715,7 +8776,15 @@ var $author$project$Main$view = function (_v0) {
 				$elm$core$Basics$floor(height)),
 				A2($elm$html$Html$Attributes$style, 'image-rendering', 'pixelated'),
 				A2($elm$html$Html$Events$on, 'mousedown', mousedown),
-				A2($elm$html$Html$Events$on, 'mousemove', mousemove)
+				A2($elm$html$Html$Events$on, 'mousemove', mousemove),
+				A2(
+				$elm$html$Html$Events$on,
+				'touchmove',
+				touch($author$project$Main$TouchMove)),
+				A2(
+				$elm$html$Html$Events$on,
+				'touchstart',
+				touch($author$project$Main$TouchStart))
 			]),
 		_List_fromArray(
 			[
@@ -8745,6 +8814,10 @@ var $author$project$Main$viewKeyButtons = function (_v0) {
 	var button = function (_v3) {
 		var key = _v3.a;
 		var code = _v3.b;
+		var onup = $elm$json$Json$Decode$succeed(
+			$author$project$Main$KeyUp(code));
+		var ondown = $elm$json$Json$Decode$succeed(
+			$author$project$Main$KeyDown(code));
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -8758,16 +8831,11 @@ var $author$project$Main$viewKeyButtons = function (_v0) {
 					A2($elm$html$Html$Attributes$style, 'height', height),
 					A2($elm$html$Html$Attributes$style, 'font-size', font),
 					A2($elm$html$Html$Attributes$style, 'user-select', 'none'),
-					A2(
-					$elm$html$Html$Events$on,
-					'mousedown',
-					$elm$json$Json$Decode$succeed(
-						$author$project$Main$KeyDown(code))),
-					A2(
-					$elm$html$Html$Events$on,
-					'mouseup',
-					$elm$json$Json$Decode$succeed(
-						$author$project$Main$KeyUp(code)))
+					A2($elm$html$Html$Events$on, 'mousedown', ondown),
+					A2($elm$html$Html$Events$on, 'mouseup', onup),
+					A2($elm$html$Html$Events$on, 'mouseleave', onup),
+					A2($elm$html$Html$Events$on, 'touchstart', ondown),
+					A2($elm$html$Html$Events$on, 'touchend', onup)
 				]),
 			_List_fromArray(
 				[
@@ -8802,29 +8870,38 @@ var $author$project$Main$viewKeyButtons = function (_v0) {
 var $author$project$Main$viewDocument = F2(
 	function (title, model) {
 		return {
-			body: _List_fromArray(
-				[
-					A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
-							A2($elm$html$Html$Attributes$style, 'left', '0'),
-							A2($elm$html$Html$Attributes$style, 'top', '0'),
-							A2($elm$html$Html$Attributes$style, 'width', '100vw'),
-							A2($elm$html$Html$Attributes$style, 'height', '100vh'),
-							A2($elm$html$Html$Attributes$style, 'background', '#1c1c1a'),
-							A2($elm$html$Html$Attributes$style, 'background-image', 'url(\'chort.png\')'),
-							A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-							A2($elm$html$Html$Attributes$style, 'justify-content', 'center'),
-							A2($elm$html$Html$Attributes$style, 'align-item', 'center')
-						]),
-					_List_fromArray(
-						[
-							$author$project$Main$view(model),
-							$author$project$Main$viewKeyButtons(model)
-						]))
-				]),
+			body: function () {
+				var prevent = A2(
+					$elm$json$Json$Decode$map,
+					function (msg) {
+						return _Utils_Tuple2(msg, true);
+					},
+					$elm$json$Json$Decode$succeed($author$project$Main$ElmoElskerSoccer));
+				return _List_fromArray(
+					[
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
+								A2($elm$html$Html$Attributes$style, 'left', '0'),
+								A2($elm$html$Html$Attributes$style, 'top', '0'),
+								A2($elm$html$Html$Attributes$style, 'width', '100vw'),
+								A2($elm$html$Html$Attributes$style, 'height', '100vh'),
+								A2($elm$html$Html$Attributes$style, 'background', '#1c1c1a'),
+								A2($elm$html$Html$Attributes$style, 'background-image', 'url(\'chort.png\')'),
+								A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+								A2($elm$html$Html$Attributes$style, 'justify-content', 'center'),
+								A2($elm$html$Html$Attributes$style, 'align-item', 'center'),
+								A2($elm$html$Html$Events$preventDefaultOn, 'contextmenu', prevent)
+							]),
+						_List_fromArray(
+							[
+								$author$project$Main$view(model),
+								$author$project$Main$viewKeyButtons(model)
+							]))
+					]);
+			}(),
 			title: title
 		};
 	});

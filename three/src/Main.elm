@@ -32,6 +32,8 @@ type Message
   | UpdatePointerLock Bool
   | UpdateLocalStorage Time.Posix
   | ResizeDisplay Int Int
+  | TouchMove Int Int
+  | TouchStart Int Int
 
 
 
@@ -42,9 +44,11 @@ type alias Mouse =
   { locked : Bool
   , movementX : Int
   , movementY : Int
+  , touchX    : Int
+  , touchY    : Int
   }
 defaultMouse : Mouse
-defaultMouse = Mouse False 0 0
+defaultMouse = Mouse False 0 0 0 0
 
 
 
@@ -121,18 +125,15 @@ init f =
           ( Json.Decode.at [ "pitch" ] Json.Decode.float )
           ( Json.Decode.at [ "yaw" ] Json.Decode.float )
 
-
     flags =
       Json.Decode.map2 ( \ st si -> ( st, si ) )
         ( Json.Decode.at [ "storage" ] ( Json.Decode.nullable stor ) )
         ( Json.Decode.at [ "size" ] size )
 
-
     ( maybestorage, ( w, h ) ) =
       case Json.Decode.decodeValue flags f of
         Ok o -> o
         Err _ -> ( Just defaultPlayer, ( -1, 0 ) )
-
 
     storage =
       case maybestorage of
@@ -143,7 +144,7 @@ init f =
     d = Debug.log "init" ( storage, ( w, h ) )
 
   in
-    ( { defaultModel | player = storage, size = ( toFloat w, toFloat h ) } , Cmd.none )
+    update ( ResizeDisplay w h ) { defaultModel | player = storage }
 
 
 
@@ -215,6 +216,21 @@ update : Message -> Model -> ( Model, Cmd msg )
 update message model =
   case message of
 
+    TouchStart x y ->
+      let
+        mouse = model.mouse
+      in
+      ( { model | mouse = { mouse | touchX = x, touchY = y } } , Cmd.none )
+
+    TouchMove x y ->
+      let
+        mouse = model.mouse
+        mx = x - mouse.touchX
+        my = y - mouse.touchY
+        --d = Debug.log "touchmove" ( mx, my )
+      in
+      update ( RotatePlayerCamera mx my ) { model | mouse = { mouse | touchX = x, touchY = y } }
+
     ResizeDisplay w h ->
       ( { model | size = ( toFloat w, toFloat h ) } , Cmd.none )
 
@@ -253,8 +269,6 @@ update message model =
         newstoragetimer = model.storageTimer + delta
         newmodel = { model | time = newtime, player = newplayer, storageTimer = newstoragetimer }
 
-
-
         al = Array.get ( findCodeByKey "←"     ) model.keyboard |> justkey
         at = Array.get ( findCodeByKey "↑"     ) model.keyboard |> justkey
         ar = Array.get ( findCodeByKey "→"     ) model.keyboard |> justkey
@@ -262,7 +276,7 @@ update message model =
         dx = if al then -1 else if ar then 1 else 0
         dy = if at then -1 else if ab then 1 else 0
         rotatedisplay (m,c) = if dx /= 0 || dy /= 0 then update ( RotatePlayerCamera dx dy ) m else (m,c)
-        --rotatedisplay m = update ( RotatePlayerCamera dx dy ) m
+
 
       in
       rotatedisplay
@@ -363,6 +377,9 @@ viewDocument : String -> Model -> Browser.Document Message
 viewDocument title model =
   { title = title
   , body =
+      let
+        prevent = Json.Decode.map ( \ msg -> ( msg, True ) ) ( Json.Decode.succeed ElmoElskerSoccer )
+      in
       [ div
           [ Html.Attributes.style "position" "absolute"
           , Html.Attributes.style "left" "0"
@@ -374,6 +391,7 @@ viewDocument title model =
           , Html.Attributes.style "display" "flex"
           , Html.Attributes.style "justify-content" "center"
           , Html.Attributes.style "align-item" "center"
+          , Html.Events.preventDefaultOn "contextmenu" prevent
           ]
           [ view model
           , viewKeyButtons model
@@ -396,8 +414,11 @@ viewKeyButtons { size } =
     border  = String.fromFloat ( m * 2.0 ) ++ "px"
     padding = String.fromFloat ( m * 2.0 ) ++ "px"
 
-
     button ( key, code ) =
+      let
+        ondown = Json.Decode.succeed ( KeyDown code )
+        onup = Json.Decode.succeed ( KeyUp code )
+      in
       div
         [ Html.Attributes.style "position" "relative"
         , Html.Attributes.style "padding" ( padding ++ " " ++ padding )
@@ -408,8 +429,11 @@ viewKeyButtons { size } =
         , Html.Attributes.style "height" height
         , Html.Attributes.style "font-size" font
         , Html.Attributes.style "user-select" "none"
-        , Html.Events.on "mousedown" ( Json.Decode.succeed ( KeyDown code ) )
-        , Html.Events.on "mouseup" ( Json.Decode.succeed ( KeyUp code ) )
+        , Html.Events.on "mousedown" ondown
+        , Html.Events.on "mouseup" onup
+        , Html.Events.on "mouseleave" onup
+        , Html.Events.on "touchstart" ondown
+        , Html.Events.on "touchend" onup
         ]
         [ text key
         ]
@@ -469,11 +493,17 @@ view { time, player, size, mouse } =
     mousemove =
       if mouse.locked then
         ( Json.Decode.map2 RotatePlayerCamera
-          ( Json.Decode.field "movementX" Json.Decode.int )
-          ( Json.Decode.field "movementY" Json.Decode.int )
+            ( Json.Decode.field "movementX" Json.Decode.int )
+            ( Json.Decode.field "movementY" Json.Decode.int )
         )
       else
         ( Json.Decode.succeed ElmoElskerSoccer )
+
+    touch msg =
+      Json.Decode.map2 msg
+        ( Json.Decode.at [ "touches", "0", "clientX" ] Json.Decode.int )
+        ( Json.Decode.at [ "touches", "0", "clientY" ] Json.Decode.int )
+
 
   in
   WebGL.toHtml
@@ -482,6 +512,8 @@ view { time, player, size, mouse } =
     , Html.Attributes.style "image-rendering" "pixelated"
     , Html.Events.on "mousedown" mousedown
     , Html.Events.on "mousemove" mousemove
+    , Html.Events.on "touchmove" ( touch TouchMove )
+    , Html.Events.on "touchstart" ( touch TouchStart )
     ]
     [ WebGL.entity
         vertexShader
